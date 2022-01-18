@@ -5,8 +5,8 @@ Important Documentation
 '''''
 
 from multiprocessing import Process
-from SecureSocket import SecureSocket
 import Constants
+from Communication.SecureSocket import SecureSocket
 
 IP = '0.0.0.0'
 PORT = 1234
