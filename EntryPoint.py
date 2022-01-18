@@ -1,8 +1,8 @@
 from multiprocessing import Queue, Value
-from Processes.logic import Logic
+from Logic.logic import Logic
 from Graphic.Monitor import Monitor
-from Processes.input import Input
-from Processes.communication import Communication
+from Input.input import Input
+from Communication.communication import Communication
 
 OPERATION_CODE_WORKING = 0
 OPERATION_CODE_NOT_WORKING = 1
