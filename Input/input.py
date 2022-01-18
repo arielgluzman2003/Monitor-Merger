@@ -21,9 +21,9 @@ class Input(Process):
     def run(self) -> None:
         mouse_position = b''
         while self.operation_code != Constants.OPERATION_CODE_NOT_WORKING:
-            if not self.input_queue.full():
+            if self.input_queue.writeable():
                 mouse_position = self.mouse.get_position()
                 if self.last_position != mouse_position:
-                    self.input_queue.put(pickle.dumps(mouse_position))
+                    self.input_queue.send(pickle.dumps(mouse_position))
                     self.last_position = mouse_position
 

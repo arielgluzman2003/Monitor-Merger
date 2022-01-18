@@ -27,8 +27,8 @@ class Logic(Process):
     def run(self) -> None:
         input_message = b''
         while self.operation_code.value != Constants.OPERATION_CODE_NOT_WORKING:
-            if not self.input_queue.empty():
-                received_point = pickle.loads(self.input_queue.get())
+            if self.input_queue.readable():
+                received_point = pickle.loads(self.input_queue.recv())
                 print(received_point.get_position())
 
 

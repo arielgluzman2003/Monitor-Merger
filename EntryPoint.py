@@ -34,7 +34,7 @@ def main():
     input_process.start()
     communication_process.start()
 
-    communication_process.start()
+    communication_process.join()
     input_process.join()
     logical_process.join()
 
