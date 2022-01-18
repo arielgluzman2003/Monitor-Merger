@@ -18,6 +18,7 @@ def main():
 
     operation_code = Value('i',
                            Constants.OPERATION_CODE_WORKING)  # Inter-Process Shared Resource with Form of Integer Value
+
     logical_process = Logic(input_queue=input_queue,
                             output_queue=output_queue,
                             operation_code=operation_code)
