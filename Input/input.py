@@ -7,10 +7,7 @@ Important Documentation
 import pickle
 from multiprocessing import Process
 from Input.MouseHandler import MouseHandler
-
-OPERATION_CODE_WORKING = 0
-OPERATION_CODE_NOT_WORKING = 1
-
+import Constants
 
 class Input(Process):
 
@@ -23,7 +20,7 @@ class Input(Process):
 
     def run(self) -> None:
         mouse_position = b''
-        while self.operation_code != OPERATION_CODE_NOT_WORKING:
+        while self.operation_code != Constants.OPERATION_CODE_NOT_WORKING:
             if not self.input_queue.full():
                 mouse_position = self.mouse.get_position()
                 if self.last_position != mouse_position:

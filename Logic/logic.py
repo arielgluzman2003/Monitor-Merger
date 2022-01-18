@@ -10,9 +10,7 @@ from enum import Enum
 from datetime import date
 from Graphic.Monitor import Monitor
 from Graphic.Point import Point
-
-OPERATION_CODE_WORKING = 0
-OPERATION_CODE_NOT_WORKING = 1
+import Constants
 
 
 class Logic(Process):
@@ -28,7 +26,7 @@ class Logic(Process):
 
     def run(self) -> None:
         input_message = b''
-        while self.operation_code.value != OPERATION_CODE_NOT_WORKING:
+        while self.operation_code.value != Constants.OPERATION_CODE_NOT_WORKING:
             if not self.input_queue.empty():
                 received_point = pickle.loads(self.input_queue.get())
                 print(received_point.get_position())
