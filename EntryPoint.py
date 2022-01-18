@@ -13,8 +13,8 @@ def main():
     input_queue = OneWayChannel(queue=Queue())  # Inter-Process Shared Resource with Form of Queue
     output_queue = OneWayChannel(queue=Queue())  # Inter-Process Shared Resource with Form of Queue
 
-    client_handle_channel = TwoWayChannel(in_f=OneWayChannel(queue=Queue()),
-                                          out_f=OneWayChannel(queue=Queue()))
+    client_handle_channel = TwoWayChannel(in_queue=OneWayChannel(queue=Queue()),
+                                          out_queue=OneWayChannel(queue=Queue()))
 
     operation_code = Value('i',
                            Constants.OPERATION_CODE_WORKING)  # Inter-Process Shared Resource with Form of Integer Value
