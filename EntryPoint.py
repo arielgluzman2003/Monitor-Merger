@@ -1,3 +1,4 @@
+import ctypes
 from multiprocessing import Queue, Value
 from Logic.logic import Logic
 from Graphic.Monitor import Monitor
@@ -13,21 +14,24 @@ def main():
     input_queue = OneWayChannel(queue=Queue())  # Inter-Process Shared Resource with Form of Queue
     output_queue = OneWayChannel(queue=Queue())  # Inter-Process Shared Resource with Form of Queue
 
-    client_handle_channel = TwoWayChannel(in_queue=OneWayChannel(queue=Queue()),
-                                          out_queue=OneWayChannel(queue=Queue()))
+    direction_a = OneWayChannel(queue=Queue())
+    direction_b = OneWayChannel(queue=Queue())
+    logic_client_handle_channel = TwoWayChannel(in_queue=direction_a, out_queue=direction_b)
+    communication_client_handle_channel = TwoWayChannel(in_queue=direction_b, out_queue=direction_a)
 
-    operation_code = Value('i',
+    operation_code = Value(ctypes.c_char_p,
                            Constants.OPERATION_CODE_WORKING)  # Inter-Process Shared Resource with Form of Integer Value
 
     logical_process = Logic(input_queue=input_queue,
                             output_queue=output_queue,
+                            client_handle_channel=logic_client_handle_channel,
                             operation_code=operation_code)
 
     input_process = Input(input_queue=input_queue,
                           operation_code=operation_code)
 
     communication_process = Communication(output_queue=output_queue,
-                                          channel=client_handle_channel,
+                                          channel=communication_client_handle_channel,
                                           operation_code=operation_code)
 
     logical_process.start()

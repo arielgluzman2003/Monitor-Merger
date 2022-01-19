@@ -4,10 +4,12 @@ Important Documentation
 
 '''''
 
+import time
 from multiprocessing import Process
 import Constants
 from Communication.SecureSocket import SecureSocket
 from Communication.ClientConnectionHandler import ClientConnectionHandler
+import pickle
 
 IP = '0.0.0.0'
 PORT = 1234
@@ -27,9 +29,26 @@ class Communication(Process):
         self._server_socket.listen(DEFAULT_LISTEN_QUEUE)
 
     def run(self) -> None:
-        connections_handler = ClientConnectionHandler()
+        connections_handler = ClientConnectionHandler(output_queue=self._output_queue,
+                                                      channel=self._channel,
+                                                      operation_code=self._operation_code)
+
+        connections_handler.start()
         while self._operation_code.value != Constants.OPERATION_CODE_NOT_WORKING:
             client_socket, addr = self._server_socket.accept()
-
-
+            client_approval_attempt = client_socket.recv()
+            self._channel.send(client_approval_attempt)
+            reply = self._recvblocking(attempts=100)
+            client_socket.send(reply)
+            if reply.decode() == Constants.CLIENT_APPROVED:
+                _, orientation = pickle.loads(client_approval_attempt)
+                connections_handler.add_client(client_socket=client_socket, orientation=orientation)
         self._server_socket.close()
+
+    def _recvblocking(self, attempts, delay=0.01):
+        attempt_counter = 0
+        while attempt_counter <= attempts:
+            if self._channel.readable():
+                return self._channel.recv()
+            time.sleep(delay)
+        return b'Message Not Received'
