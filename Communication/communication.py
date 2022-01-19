@@ -7,6 +7,7 @@ Important Documentation
 from multiprocessing import Process
 import Constants
 from Communication.SecureSocket import SecureSocket
+from Communication.ClientConnectionHandler import ClientConnectionHandler
 
 IP = '0.0.0.0'
 PORT = 1234
@@ -26,6 +27,7 @@ class Communication(Process):
         self._server_socket.listen(DEFAULT_LISTEN_QUEUE)
 
     def run(self) -> None:
+        connections_handler = ClientConnectionHandler()
         while self._operation_code != Constants.OPERATION_CODE_NOT_WORKING:
             client_socket, addr = self._server_socket.accept()
 
