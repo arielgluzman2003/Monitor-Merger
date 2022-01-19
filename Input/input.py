@@ -20,7 +20,7 @@ class Input(Process):
 
     def run(self) -> None:
         mouse_position = b''
-        while self.operation_code != Constants.OPERATION_CODE_NOT_WORKING:
+        while self.operation_code.value != Constants.OPERATION_CODE_NOT_WORKING:
             if self.input_queue.writeable():
                 mouse_position = self.mouse.get_position()
                 if self.last_position != mouse_position:

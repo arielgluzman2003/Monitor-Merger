@@ -28,7 +28,7 @@ class Communication(Process):
 
     def run(self) -> None:
         connections_handler = ClientConnectionHandler()
-        while self._operation_code != Constants.OPERATION_CODE_NOT_WORKING:
+        while self._operation_code.value != Constants.OPERATION_CODE_NOT_WORKING:
             client_socket, addr = self._server_socket.accept()
 
 
