@@ -10,7 +10,7 @@ from Communication.SecureSocket import SecureSocket
 from Communication.ClientConnectionHandler import ClientConnectionHandler
 import pickle
 from Constants import OperationCodes
-
+from Constants import ConnectionCodes
 
 IP = '0.0.0.0'
 PORT = 1234
@@ -41,7 +41,7 @@ class Communication(Process):
             self._channel.send(client_approval_attempt)
             reply = self._recvblocking(attempts=100)
             client_socket.send(reply)
-            if reply.decode() == Constants.CLIENT_APPROVED:
+            if reply.decode() == ConnectionCodes.CLIENT_APPROVED:
                 _, orientation = pickle.loads(client_approval_attempt)
                 connections_handler.add_client(client_socket=client_socket, orientation=orientation)
         self._server_socket.close()
