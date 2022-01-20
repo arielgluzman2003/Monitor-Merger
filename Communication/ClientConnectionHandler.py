@@ -1,10 +1,11 @@
 from threading import Thread
 from Constants import Orientation
-import Constants
+from Constants import OperationCodes
 import pickle
 from Utilities.channel import TwoWayChannel, OneWayChannel
 from multiprocessing import Queue
 from Communication.ClientConnection import ClientConnection
+
 
 class ClientConnectionHandler(Thread):
     def __init__(self, output_queue, channel, operation_code):
@@ -24,7 +25,7 @@ class ClientConnectionHandler(Thread):
                           Orientation.TOP: None, Orientation.BOTTOM: None}
 
     def run(self) -> None:
-        while self._operation_code.value != Constants.OPERATION_CODE_NOT_WORKING:
+        while self._operation_code.value != OperationCodes.NOT_WORKING:
             for client in self._address_list.values():
                 if client is not None:
                     if client.readable():

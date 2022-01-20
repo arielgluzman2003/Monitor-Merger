@@ -11,8 +11,8 @@ from datetime import date
 from Graphic.Monitor import Monitor
 from Graphic.Point import Point
 from Constants import Orientation
-import Constants
-
+from Constants import OperationCodes
+from Constants import ConnectionCodes
 
 class Logic(Process):
 
@@ -29,11 +29,11 @@ class Logic(Process):
 
     def run(self) -> None:
         input_message = b''
-        while self.operation_code.value != Constants.OPERATION_CODE_NOT_WORKING:
+        while self.operation_code.value != OperationCodes.NOT_WORKING:
             if self._client_handle_channel.readable():
                 orientation, message = pickle.loads(self._client_handle_channel.recv())
-                if message.decode() in (Constants.CLIENT_DEATTACHED):
-                    if message.decode() == Constants.CLIENT_DEATTACHED:
+                if message.decode() in (ConnectionCodes.CLIENT_DETACHED):
+                    if message.decode() == ConnectionCodes.CLIENT_DETACHED:
                         self.monitors[orientation] = None
 
                 else:

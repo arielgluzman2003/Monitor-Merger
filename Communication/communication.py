@@ -6,10 +6,11 @@ Important Documentation
 
 import time
 from multiprocessing import Process
-import Constants
 from Communication.SecureSocket import SecureSocket
 from Communication.ClientConnectionHandler import ClientConnectionHandler
 import pickle
+from Constants import OperationCodes
+
 
 IP = '0.0.0.0'
 PORT = 1234
@@ -34,7 +35,7 @@ class Communication(Process):
                                                       operation_code=self._operation_code)
 
         connections_handler.start()
-        while self._operation_code.value != Constants.OPERATION_CODE_NOT_WORKING:
+        while self._operation_code.value != OperationCodes.NOT_WORKING:
             client_socket, addr = self._server_socket.accept()
             client_approval_attempt = client_socket.recv()
             self._channel.send(client_approval_attempt)

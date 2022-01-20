@@ -5,7 +5,7 @@ from Graphic.Monitor import Monitor
 from Input.input import Input
 from Communication.communication import Communication
 from Utilities.channel import OneWayChannel, TwoWayChannel
-import Constants
+from Constants import OperationCodes
 
 
 def main():
@@ -19,8 +19,8 @@ def main():
     logic_client_handle_channel = TwoWayChannel(in_queue=direction_a, out_queue=direction_b)
     communication_client_handle_channel = TwoWayChannel(in_queue=direction_b, out_queue=direction_a)
 
-    operation_code = Value(ctypes.c_char_p,
-                           Constants.OPERATION_CODE_WORKING)  # Inter-Process Shared Resource with Form of Integer Value
+    operation_code = Value('i',
+                           OperationCodes.WORKING)  # Inter-Process Shared Resource with Form of Integer Value
 
     logical_process = Logic(input_queue=input_queue,
                             output_queue=output_queue,
