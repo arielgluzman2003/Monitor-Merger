@@ -14,6 +14,7 @@ from Constants import Orientation
 from Constants import OperationCodes
 from Constants import ConnectionCodes
 
+
 class Logic(Process):
 
     def __init__(self, input_queue, output_queue, client_handle_channel, operation_code):
@@ -32,21 +33,23 @@ class Logic(Process):
         while self.operation_code.value != OperationCodes.NOT_WORKING:
             if self._client_handle_channel.readable():
                 orientation, message = pickle.loads(self._client_handle_channel.recv())
-                if message.decode() in (ConnectionCodes.CLIENT_DETACHED):
-                    if message.decode() == ConnectionCodes.CLIENT_DETACHED:
+                if message in (ConnectionCodes.CLIENT_DETACHED, 1234):
+                    if message == ConnectionCodes.CLIENT_DETACHED:
                         self.monitors[orientation] = None
 
                 else:
                     if message == self._passcode:
-                        if self.monitors[orientation] is not None:
-                            pass  # Accept Client
+                        if self.monitors[orientation] is None:
+                            self._client_handle_channel.send(ConnectionCodes.CLIENT_APPROVED)  # Accept Client
                         else:
-                            pass  # Reject Client Due to Orientation Unavailable
+                            self._client_handle_channel.send(
+                                ConnectionCodes.CLIENT_DENIED_ORIENTATION_UNAVAILABLE)  # Reject Client Due to Orientation Unavailable
                     else:
-                        pass  # Reject Client Due to Passcode Wrong
+                        self._client_handle_channel.send(
+                            ConnectionCodes.CLIENT_DENIED_PASSCODE_WRONG)  # Reject Client Due to Passcode Wrong
             if self.input_queue.readable():
                 received_point = pickle.loads(self.input_queue.recv())
-                print(received_point.get_position())
+                # print(received_point.get_position())
 
 
 def get_relative_point(src_monitor, dst_monitor, point):

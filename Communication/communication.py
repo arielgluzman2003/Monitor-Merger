@@ -40,8 +40,8 @@ class Communication(Process):
             client_approval_attempt = client_socket.recv()
             self._channel.send(client_approval_attempt)
             reply = self._recvblocking(attempts=100)
-            client_socket.send(reply)
-            if reply.decode() == ConnectionCodes.CLIENT_APPROVED:
+            client_socket.send(str(reply.value).encode())
+            if reply == ConnectionCodes.CLIENT_APPROVED:
                 _, orientation = pickle.loads(client_approval_attempt)
                 connections_handler.add_client(client_socket=client_socket, orientation=orientation)
         self._server_socket.close()
