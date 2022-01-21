@@ -39,6 +39,7 @@ class Logic(Process):
                     if message == self._passcode:
                         if self.monitors[orientation] is None:
                             self._client_handle_channel.send(ConnectionCodes.CLIENT_APPROVED)  # Accept Client
+                            self.monitors[orientation] = Monitor(1920,1080)
                         else:
                             self._client_handle_channel.send(
                                 ConnectionCodes.CLIENT_DENIED_ORIENTATION_UNAVAILABLE)  # Reject Client Due to Orientation Unavailable
@@ -46,8 +47,11 @@ class Logic(Process):
                         self._client_handle_channel.send(
                             ConnectionCodes.CLIENT_DENIED_PASSCODE_WRONG)  # Reject Client Due to Passcode Wrong
             if self.input_queue.readable():
-                received_point = pickle.loads(self.input_queue.recv())
-                # print(received_point.get_position())
+                received_point = self.input_queue.recv()
+                for monitor in self.monitors.keys():
+                    if self.monitors[monitor] is not None:
+                        self.output_queue.send((monitor, pickle.loads(received_point).get_position()))
+                        #print(pickle.loads(received_point))
 
 
 def get_relative_point(src_monitor, dst_monitor, point):

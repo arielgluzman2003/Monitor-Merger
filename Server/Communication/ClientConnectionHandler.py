@@ -31,7 +31,7 @@ class ClientConnectionHandler(Thread):
                     if client.readable():
                         self._channel.send(client.recv())
             if self._output_queue.readable():
-                orientation, point = pickle.loads(self._output_queue.recv())
+                orientation, point = self._output_queue.recv()
                 self._address_list[orientation].send(pickle.dumps(point))
 
     def add_client(self, client_socket, orientation):

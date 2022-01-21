@@ -10,4 +10,5 @@ class ClientConnection(Thread):
 
     def run(self) -> None:
         while self._active:
-            pass
+            if self._channel.readable():
+                self._socket.send(self._channel.recv())
