@@ -9,8 +9,8 @@ from multiprocessing import Process
 from Communication.SecureSocket import SecureSocket
 from Communication.ClientConnectionHandler import ClientConnectionHandler
 import pickle
-from Constants import OperationCodes
-from Constants import ConnectionCodes
+from Utilities.Constants import OperationCodes
+from Utilities.Constants import ConnectionCodes
 
 IP = '0.0.0.0'
 PORT = 1234

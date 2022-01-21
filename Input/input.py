@@ -7,7 +7,7 @@ Important Documentation
 import pickle
 from multiprocessing import Process
 from Input.MouseHandler import MouseHandler
-from Constants import OperationCodes
+from Utilities.Constants import OperationCodes
 
 class Input(Process):
 

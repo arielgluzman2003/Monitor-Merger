@@ -1,6 +1,6 @@
 from threading import Thread
-from Constants import Orientation
-from Constants import OperationCodes
+from Utilities.Constants import Orientation
+from Utilities.Constants import OperationCodes
 import pickle
 from Utilities.channel import TwoWayChannel, OneWayChannel
 from multiprocessing import Queue

@@ -1,11 +1,10 @@
-import ctypes
 from multiprocessing import Queue, Value
 from Logic.logic import Logic
 from Graphic.Monitor import Monitor
 from Input.input import Input
 from Communication.communication import Communication
 from Utilities.channel import OneWayChannel, TwoWayChannel
-from Constants import OperationCodes
+from Utilities.Constants import OperationCodes
 
 
 def main():
