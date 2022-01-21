@@ -4,7 +4,7 @@ from Utilities.Constants import OperationCodes
 import pickle
 from Utilities.channel import TwoWayChannel, OneWayChannel
 from multiprocessing import Queue
-from Communication.ClientConnection import ClientConnection
+from Server.Communication.ClientConnection import ClientConnection
 
 
 class ClientConnectionHandler(Thread):

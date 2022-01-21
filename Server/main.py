@@ -1,8 +1,8 @@
 from multiprocessing import Queue, Value
-from Logic.logic import Logic
+from Server.Logic.logic import Logic
 from Graphic.Monitor import Monitor
-from Input.input import Input
-from Communication.communication import Communication
+from Server.Input.input import Input
+from Server.Communication.communication import Communication
 from Utilities.channel import OneWayChannel, TwoWayChannel
 from Utilities.Constants import OperationCodes
 
