@@ -50,4 +50,3 @@ class Monitor:
 
     def get_dimensions(self):
         return self.width, self.height
-

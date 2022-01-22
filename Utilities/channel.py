@@ -8,6 +8,7 @@ Date of creation: 2.1.2022
 
 import time
 
+
 class OneWayChannel:
     '''
     One Way Channel
@@ -74,4 +75,3 @@ class TwoWayChannel:
     # True if a recv() can be done, else False
     def readable(self):
         return self.in_queue.readable()
-

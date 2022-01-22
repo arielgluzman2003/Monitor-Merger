@@ -9,6 +9,7 @@ from multiprocessing import Process
 from Server.Input.MouseHandler import MouseHandler
 from Utilities.Constants import OperationCodes
 
+
 class Input(Process):
 
     def __init__(self, input_queue, operation_code):
@@ -26,4 +27,3 @@ class Input(Process):
                 if self.last_position != mouse_position:
                     self.input_queue.send(pickle.dumps(mouse_position))
                     self.last_position = mouse_position
-
