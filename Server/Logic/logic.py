@@ -30,7 +30,7 @@ class Logic(Process):
         input_message = b''
         while self.operation_code.value != OperationCodes.NOT_WORKING:
             if self._client_handle_channel.readable():
-                orientation, message = pickle.loads(self._client_handle_channel.recv())
+                orientation, message, data = pickle.loads(self._client_handle_channel.recv())
                 if message in (ConnectionCodes.CLIENT_DETACHED, 1234):
                     if message == ConnectionCodes.CLIENT_DETACHED:
                         self.monitors[orientation] = None
@@ -39,7 +39,8 @@ class Logic(Process):
                     if message == self._passcode:
                         if self.monitors[orientation] is None:
                             self._client_handle_channel.send(ConnectionCodes.CLIENT_APPROVED)  # Accept Client
-                            self.monitors[orientation] = Monitor(1920,1080)
+                            self.monitors[orientation] = data
+                            print(self.monitors[orientation].get_dimensions())
                         else:
                             self._client_handle_channel.send(
                                 ConnectionCodes.CLIENT_DENIED_ORIENTATION_UNAVAILABLE)  # Reject Client Due to Orientation Unavailable
@@ -50,8 +51,9 @@ class Logic(Process):
                 received_point = self.input_queue.recv()
                 for monitor in self.monitors.keys():
                     if self.monitors[monitor] is not None:
-                        self.output_queue.send((monitor, pickle.loads(received_point).get_position()))
-                        #print(pickle.loads(received_point))
+                        received_point = pickle.loads(received_point)
+                        received_point.set_relative(self.main_monitor, self.monitors[monitor])
+                        self.output_queue.send((monitor, received_point.get_position()))
 
 
 def get_relative_point(src_monitor, dst_monitor, point):

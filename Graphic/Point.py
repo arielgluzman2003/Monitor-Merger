@@ -18,3 +18,17 @@ class Point:
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def set_relative(self, this, other):
+        '''
+        :type this: Monitor
+        :type other: Monitor
+        :param this: Current Monitor
+        :param other:
+        :return:
+        '''
+
+        this_width, this_height = this.get_dimensions()
+        other_width, other_height = other.get_dimensions()
+        self.x = int((self.x / this_width) * other_width)
+        self.y = int((self.y / this_height) * other_height)
