@@ -168,6 +168,7 @@ class SecureSocket:
 class SecureSocketException(Exception):
     '''
     Raised When an Exception Regarding SecureSocket's Occurs
+    Used like socket.error
     '''
 
     def __init__(self, message):
