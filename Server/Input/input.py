@@ -3,11 +3,14 @@ Important Documentation
     Multiprocessing.Queue - https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue
 
 '''''
-
+import mouse
+from pynput.mouse import Listener, Button
 import pickle
 from multiprocessing import Process
+from Graphic.Point import Point
 from Server.Input.MouseHandler import MouseHandler
 from Utilities.Constants import OperationCodes
+from Utilities.Constants import ActionCodes
 
 
 class Input(Process):
@@ -21,9 +24,35 @@ class Input(Process):
 
     def run(self) -> None:
         mouse_position = b''
-        while self.operation_code.value != OperationCodes.NOT_WORKING:
-            if self.input_queue.writeable():
-                mouse_position = self.mouse.get_position()
-                if self.last_position != mouse_position:
-                    self.input_queue.send(pickle.dumps(mouse_position))
-                    self.last_position = mouse_position
+
+        with Listener(
+                on_move=self._on_move,
+                on_click=self._on_click,
+                on_scroll=self._on_scroll) as listener:
+            listener.join()
+
+    def _on_move(self, x, y):
+        if self.operation_code.value != OperationCodes.NOT_WORKING and self.input_queue.writeable():
+            self.input_queue.send((ActionCodes.NEW_POSITION, Point(x=x, y=y)))
+
+    def _on_click(self, x, y, button, pressed):
+        if self.operation_code.value != OperationCodes.NOT_WORKING and self.input_queue.writeable():
+            print(x,y,button,pressed)
+            if pressed:
+                if button == Button.left:
+                    self.input_queue.send((ActionCodes.LEFT_CLICK, ''))
+                if button == Button.right:
+                    self.input_queue.send((ActionCodes.RIGHT_CLICK, ''))
+                if button == Button.middle:
+                    self.input_queue.send((ActionCodes.MIDDLE_CLICK, ''))
+            else:
+                if button == Button.left:
+                    self.input_queue.send((ActionCodes.LEFT_RELEASE, ''))
+                if button == Button.right:
+                    self.input_queue.send((ActionCodes.RIGHT_RELEASE, ''))
+                if button == Button.middle:
+                    self.input_queue.send((ActionCodes.MIDDLE_RELEASE, ''))
+
+    def _on_scroll(self, x, y, dx, dy):
+        if self.operation_code.value != OperationCodes.NOT_WORKING and self.input_queue.writeable():
+            self.input_queue.send((ActionCodes.NEW_POSITION, Point(x=x, y=y)))

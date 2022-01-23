@@ -132,10 +132,13 @@ class SecureSocket:
         that way client knows how much to receive, and can differentiate between messages.
         in this case message can load up to about 10mb.
         '''
-        message = pad(plaintext, self._blocksize)  # max size 10mb
-        length = str(len(message))  # max 9 characters
-        len_of_length = str(len(length))  # max 1 character
-        self._socket.send((len_of_length + length).encode() + self._aes.encrypt(message))
+        try:
+            message = pad(plaintext, self._blocksize)  # max size 10mb
+            length = str(len(message))  # max 9 characters
+            len_of_length = str(len(length))  # max 1 character
+            self._socket.send((len_of_length + length).encode() + self._aes.encrypt(message))
+        except socket.error:
+            raise SecureSocketException("Error Receiving Message")
 
     def recv(self):
         if self._acceptor:
@@ -144,9 +147,12 @@ class SecureSocket:
         :return: plain-text byte array
         gets length of length-of-data, length-of-data, and data.
         '''
-        len_of_length = int(self._socket.recv(1).decode())
-        length = int(self._socket.recv(len_of_length).decode())
-        return unpad(self._aes.decrypt(self._socket.recv(length)), self._blocksize)
+        try:
+            len_of_length = int(self._socket.recv(1).decode())
+            length = int(self._socket.recv(len_of_length).decode())
+            return unpad(self._aes.decrypt(self._socket.recv(length)), self._blocksize)
+        except socket.error:
+            raise SecureSocketException("Error Receiving Message")
 
     def close(self):
         self._socket.close()

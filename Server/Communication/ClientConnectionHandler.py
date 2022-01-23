@@ -26,13 +26,14 @@ class ClientConnectionHandler(Thread):
 
     def run(self) -> None:
         while self._operation_code.value != OperationCodes.NOT_WORKING:
-            for client in self._address_list.values():
+            for monitor in self._address_list.keys():
+                client = self._address_list[monitor]
                 if client is not None:
                     if client.readable():
-                        self._channel.send(client.recv())
+                        self._channel.send(pickle.dumps((monitor, client.recv(), '')))
             if self._output_queue.readable():
-                orientation, point = self._output_queue.recv()
-                self._address_list[orientation].send(pickle.dumps(point))
+                orientation, code, data = self._output_queue.recv()
+                self._address_list[orientation].send((code, data))
 
     def add_client(self, client_socket, orientation):
         direction_a = OneWayChannel(queue=Queue())

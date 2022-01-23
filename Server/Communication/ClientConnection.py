@@ -1,5 +1,7 @@
 from threading import Thread
-
+from Utilities.SecureSocket import SecureSocketException
+from Utilities.Constants import ConnectionCodes
+import pickle
 
 class ClientConnection(Thread):
     def __init__(self, client_socket, channel):
@@ -11,4 +13,10 @@ class ClientConnection(Thread):
     def run(self) -> None:
         while self._active:
             if self._channel.readable():
-                self._socket.send(self._channel.recv())
+                try:
+                    self._socket.send(pickle.dumps(self._channel.recv()))
+                except SecureSocketException:
+                    print("Client Disconnected")
+                    self._channel.send(ConnectionCodes.CLIENT_DETACHED)
+                    self._active = False
+                    self._socket.close()
