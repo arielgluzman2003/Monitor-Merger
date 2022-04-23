@@ -21,9 +21,9 @@ class Point:
 
     def set_relative(self, this, other):
         '''
-        :type this: Monitor
-        :type other: Monitor
-        :param this: Current Monitor
+        :type this: Display
+        :type other: Display
+        :param this: Current Display
         :param other:
         :return:
         '''

@@ -1,3 +1,4 @@
+import multiprocessing
 from threading import Thread
 from Utilities.Constants import Orientation
 from Utilities.Constants import OperationCodes
@@ -8,29 +9,35 @@ from Server.Communication.ClientConnection import ClientConnection
 
 
 class ClientConnectionHandler(Thread):
-    def __init__(self, output_queue, channel, operation_code):
-        """
-        :type output_queue: OneWayChannel
-        :type client_information_channel: TwoWayChannel
-        :type operation_code:
-
-        """
+    def __init__(self, output_queue: OneWayChannel, channel: TwoWayChannel, operation_code: multiprocessing.Value):
         super(ClientConnectionHandler, self).__init__()
         self._output_queue = output_queue
         self._channel = channel
         self._operation_code = operation_code
-        self._address_list = {Orientation.LEFT: None, Orientation.RIGHT: None,
-                              Orientation.TOP: None, Orientation.BOTTOM: None}
-        self._children = {Orientation.LEFT: None, Orientation.RIGHT: None,
-                          Orientation.TOP: None, Orientation.BOTTOM: None}
+
+        '''
+        'address_list' is a dictionary that contains 'TwoWayChannel' objects used to
+        communicate with child 'ClientConnection' Threads, which are in '_children'
+        '''
+        self._address_list = dict.fromkeys([Orientation.LEFT, Orientation.RIGHT,
+                                            Orientation.TOP, Orientation.BOTTOM], None)
+
+        '''
+        '_children' contains child threads (ClientConnection)
+        '''
+        self._children = dict.fromkeys([Orientation.LEFT, Orientation.RIGHT,
+                                        Orientation.TOP, Orientation.BOTTOM], None)
 
     def run(self) -> None:
+
         while self._operation_code.value != OperationCodes.NOT_WORKING:
-            for monitor in self._address_list.keys():
-                client = self._address_list[monitor]
+            for display in self._address_list.keys():
+                client = self._address_list[display]
                 if client is not None:
                     if client.readable():
-                        self._channel.send(pickle.dumps((monitor, client.recv(), '')))
+                        self._channel.send(pickle.dumps((display, client.recv(), '')))
+
+
             if self._output_queue.readable():
                 orientation, code, data = self._output_queue.recv()
                 self._address_list[orientation].send((code, data))
@@ -38,8 +45,8 @@ class ClientConnectionHandler(Thread):
     def add_client(self, client_socket, orientation):
         direction_a = OneWayChannel(queue=Queue())
         direction_b = OneWayChannel(queue=Queue())
-        channel_keep = TwoWayChannel(in_queue=direction_a, out_queue=direction_b)
-        channel_send = TwoWayChannel(in_queue=direction_b, out_queue=direction_a)
+        channel_keep = TwoWayChannel(in_channel=direction_a, out_channel=direction_b)
+        channel_send = TwoWayChannel(in_channel=direction_b, out_channel=direction_a)
         self._address_list[orientation] = channel_keep
         self._children[orientation] = ClientConnection(client_socket=client_socket, channel=channel_send)
         self._children[orientation].start()
