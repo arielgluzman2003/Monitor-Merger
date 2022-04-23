@@ -37,7 +37,7 @@ class Communication(Process):
         connections_handler.start()
         while self._operation_code.value != OperationCodes.NOT_WORKING:
             client_socket, addr = self._server_socket.accept()
-            client_approval_attempt = client_socket.recv()
+            client_approval_attempt = pickle.loads(client_socket.recv())
             self._channel.send(client_approval_attempt)
             reply = self._recvblocking(attempts=100)
             client_socket.send(str(reply.value).encode())

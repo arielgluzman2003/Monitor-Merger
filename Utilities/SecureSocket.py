@@ -13,6 +13,8 @@ in large will be closer to its concepts.
 previous version should be found at https://github.com/arielgluzman2003/secure-sockets at an early branch
 '''
 import socket
+from typing import Optional
+
 from Crypto.Util.Padding import pad, unpad
 from Crypto.Random import get_random_bytes as generate_key
 from Crypto.Cipher import AES
@@ -116,7 +118,7 @@ class SecureSocket:
         try:
             self._socket.connect((ip, port))
         except socket.error as e:
-            raise socket.error('An error occurred while trying to connect to server: ' + e)
+            raise SecureSocketException('An error occurred while trying to connect to server: ' + e.__str__())
         pickled_pubkey = self._socket.recv(4000)  # receives public key object as byte-array
         public_key = pickle.loads(pickled_pubkey)  # loads public key byte-array object
         self._socket.send(rsa.encrypt(self._symmetric_key, public_key))  # sends encrypted symmetric key
@@ -164,6 +166,11 @@ class SecureSocket:
         new_socket._acceptor = False
         return new_socket
 
+    def gettimeout(self) -> Optional[float]:
+        return self._socket.gettimeout()
+
+    def settimeout(self, value: Optional[float]):
+        self._socket.settimeout(value)
 
 class SecureSocketException(Exception):
     '''
