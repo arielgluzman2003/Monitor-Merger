@@ -37,6 +37,7 @@ class ClientConnectionHandler(Thread):
                     if client.readable():
                         self._channel.send(pickle.dumps((display, client.recv(), '')))
 
+
             if self._output_queue.readable():
                 orientation, code, data = self._output_queue.recv()
                 self._address_list[orientation].send((code, data))
