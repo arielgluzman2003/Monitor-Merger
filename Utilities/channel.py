@@ -55,6 +55,10 @@ class OneWayChannel:
     def readable(self):
         return not self.queue.empty()
 
+    # Drops All Elements in Queue
+    def clear(self):
+        while not self.readable():
+            _ = self.recv()
 
 class TwoWayChannel:
     '''

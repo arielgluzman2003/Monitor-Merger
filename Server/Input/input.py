@@ -33,12 +33,12 @@ class Input(Process):
 
     def _on_move(self, x, y):
         if self._operation_code.value != OperationCodes.NOT_WORKING and self._input_queue.writeable():
-            print(x, y)
+            # print(x, y)
             self._input_queue.send((ActionCodes.NEW_POSITION, Point(x=x, y=y)))
 
     def _on_click(self, x, y, button, pressed):
         if self._operation_code.value != OperationCodes.NOT_WORKING and self._input_queue.writeable():
-            print(x, y, button, pressed)
+            # print(x, y, button, pressed)
             if pressed:
                 if button == Button.left:
                     self._input_queue.send((ActionCodes.LEFT_CLICK, ''))
@@ -56,5 +56,5 @@ class Input(Process):
 
     def _on_scroll(self, x, y, dx, dy):
         if self._operation_code.value != OperationCodes.NOT_WORKING and self._input_queue.writeable():
-            print("{x}:{dx}, {y}:{dy}".format(x=x, dx=dx, y=y, dy=dy))
-            self._input_queue.send((ActionCodes.NEW_POSITION, Point(x=x, y=y)))
+            # print("{x}:{dx}, {y}:{dy}".format(x=x, dx=dx, y=y, dy=dy))
+            self._input_queue.send((ActionCodes.SCROLL, (dx, dy)))
