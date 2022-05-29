@@ -5,7 +5,7 @@ from platform import system
 ASPECT_RATIOS = [(16, 10), (16, 9), (4, 3), (21, 9)]
 
 
-def _current_display_dimensions():
+def current_display_dimensions():
     '''
     
     :return: Dimensions of Display: (WIDTH, HEIGHT) 
@@ -49,7 +49,7 @@ class Display:
         if (width is None and height is not None) or (width is not None and height is None):
             raise ValueError("Too Few Arguments Given!")
         elif width is None and height is None:
-            width, height = _current_display_dimensions()
+            width, height = current_display_dimensions()
 
         self.width = width
         self.height = height

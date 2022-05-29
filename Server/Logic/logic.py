@@ -72,7 +72,7 @@ class Logic(Process):
                         if data.x > self._main_display.width - SCREEN_MARGIN:
                             if self._displays[Orientation.RIGHT] is not None:
                                 self._current_display = Orientation.RIGHT
-                                self._input_queue.clear()
+
                                 self._input_queue.send((ActionCodes.NEW_POSITION, Point(x=SCREEN_MARGIN, y=y)))
                                 mouse.move(SCREEN_MARGIN, y)
                                 transparent_window.wake()
@@ -93,7 +93,7 @@ class Logic(Process):
                             transparent_window.destroy()
                     elif self._current_display == Orientation.LEFT:
                         if data.x > self._main_display.width - SCREEN_MARGIN:
-                            self._input_queue.clear()
+
                             self._current_display = Orientation.MAIN
                             transparent_window.destroy()
                             mouse.move(SCREEN_MARGIN, y)

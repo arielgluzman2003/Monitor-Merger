@@ -8,6 +8,7 @@ from Graphic.Display import Display
 from tkinter import *
 import string
 import random
+from Graphic.window import Window
 
 from Server.Communication.communication import Communication
 from Server.Input.input import Input
@@ -29,6 +30,10 @@ def generate_code(letters, length):
 def main(code):
     # Inter-Process Shared Resource with Form of Integer Value
     operation_code = Value('i', OperationCodes.NOT_WORKING)
+
+    transparent_window = Window(operation_code=operation_code)
+    #transparent_window = Window()
+
 
     current_display = Display()
 
@@ -53,6 +58,7 @@ def main(code):
                                           operation_code=operation_code)
 
     operation_code.value = OperationCodes.WORKING
+    transparent_window.start()
     logical_process.start()
     input_process.start()
     communication_process.start()
@@ -60,6 +66,7 @@ def main(code):
     logical_process.join()
     input_process.join()
     communication_process.join()
+    transparent_window.join()
 
     # m = Mechanism(_operation_code)
     #
