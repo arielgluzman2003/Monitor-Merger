@@ -1,12 +1,12 @@
 import ctypes
 import socket
 from typing import Tuple
-import Graphic.Display
+import Graphic.display
 import Utilities.SecureSocket
-from Utilities.Constants import Orientation, ActionCodes
+from Utilities.constants import Orientation, ActionCodes
 import pickle
 import mouse
-from Graphic.Point import Point
+from Graphic.point import Point
 from pynput.mouse import Button
 
 PORT = 1234
@@ -35,13 +35,13 @@ def main(passcode):
         print("cant conect")
         exit(1)
 
-    my_display = Graphic.Display.Display()
+    my_display = Graphic.display.Display()
 
     client_socket.send(pickle.dumps((Orientation.TOP, passcode, my_display)))
     connection_code = client_socket.recv()
 
-    if str(Utilities.Constants.ConnectionCodes.CLIENT_DENIED_ORIENTATION_UNAVAILABLE) == connection_code or str(
-            Utilities.Constants.ConnectionCodes.CLIENT_DENIED_PASSCODE_WRONG) == connection_code:
+    if str(Utilities.constants.ConnectionCodes.CLIENT_DENIED_ORIENTATION_UNAVAILABLE) == connection_code or str(
+            Utilities.constants.ConnectionCodes.CLIENT_DENIED_PASSCODE_WRONG) == connection_code:
         print("Cant Connect Something Went Wrong")
         exit(1)
 

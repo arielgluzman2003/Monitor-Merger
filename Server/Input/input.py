@@ -6,16 +6,17 @@ Important Documentation
 import mouse
 from pynput.mouse import Listener, Button
 import pickle
-from multiprocessing import Process
-from Graphic.Point import Point
+from multiprocessing import Process, Value
+from Graphic.point import Point
 from Server.Input.MouseHandler import MouseHandler
-from Utilities.Constants import OperationCodes
-from Utilities.Constants import ActionCodes
+from Utilities.constants import OperationCodes
+from Utilities.constants import ActionCodes
+from Utilities.channel import DirectedChannel
 
 
 class Input(Process):
 
-    def __init__(self, input_queue, operation_code):
+    def __init__(self, input_queue: DirectedChannel, operation_code: Value):
         super(Input, self).__init__()
         self._input_queue = input_queue
         self._operation_code = operation_code

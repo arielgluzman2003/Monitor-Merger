@@ -3,8 +3,8 @@ import pickle
 from Utilities.SecureSocket import SecureSocketException, SecureSocket
 from tkinter import *
 from tkinter import Text
-from Graphic.Display import Display
-from Utilities.Constants import Orientation
+from Graphic.display import Display
+from Utilities.constants import Orientation
 
 PORT = 1234
 SIZE = 5

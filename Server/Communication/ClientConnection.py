@@ -1,13 +1,13 @@
 import socket
 from threading import Thread
 from Utilities.SecureSocket import SecureSocketException, SecureSocket
-from Utilities.Constants import ConnectionCodes
+from Utilities.constants import ConnectionCodes
 import pickle
-from Utilities.channel import TwoWayChannel
+from Utilities.channel import UndirectedChannel
 
 
 class ClientConnection(Thread):
-    def __init__(self, client_socket: SecureSocket, channel: TwoWayChannel):
+    def __init__(self, client_socket: SecureSocket, channel: UndirectedChannel):
         super(ClientConnection, self).__init__()
         self._socket = client_socket
         self._channel = channel

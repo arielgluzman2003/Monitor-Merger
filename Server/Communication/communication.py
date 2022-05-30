@@ -5,12 +5,14 @@ Important Documentation
 '''''
 
 import time
-from multiprocessing import Process
+from multiprocessing import Process, Value
 from Utilities.SecureSocket import SecureSocket
 from Server.Communication.ClientConnectionHandler import ClientConnectionHandler
 import pickle
-from Utilities.Constants import OperationCodes
-from Utilities.Constants import ConnectionCodes
+from Utilities.constants import OperationCodes
+from Utilities.constants import ConnectionCodes
+from Utilities.channel import DirectedChannel, UndirectedChannel
+
 
 IP = '0.0.0.0'
 PORT = 1234
@@ -20,7 +22,7 @@ DEFAULT_LISTEN_QUEUE = 1
 
 class Communication(Process):
 
-    def __init__(self, output_queue, channel, operation_code):
+    def __init__(self, output_queue: DirectedChannel, channel: UndirectedChannel, operation_code: Value):
         super(Communication, self).__init__()
         self._output_queue = output_queue
         self._channel = channel

@@ -1,15 +1,15 @@
 import multiprocessing
 from threading import Thread
-from Utilities.Constants import Orientation
-from Utilities.Constants import OperationCodes
+
+from Utilities.constants import Orientation, OperationCodes
 import pickle
-from Utilities.channel import TwoWayChannel, OneWayChannel
-from multiprocessing import Queue
+import Utilities.channel
 from Server.Communication.ClientConnection import ClientConnection
 
 
 class ClientConnectionHandler(Thread):
-    def __init__(self, output_queue: OneWayChannel, channel: TwoWayChannel, operation_code: multiprocessing.Value):
+    def __init__(self, output_queue: Utilities.channel.DirectedChannel, channel: Utilities.channel.UndirectedChannel,
+                 operation_code: multiprocessing.Value):
         super(ClientConnectionHandler, self).__init__()
         self._output_queue = output_queue
         self._channel = channel
@@ -37,16 +37,12 @@ class ClientConnectionHandler(Thread):
                     if client.readable():
                         self._channel.send(pickle.dumps((display, client.recv(), '')))
 
-
             if self._output_queue.readable():
                 orientation, code, data = self._output_queue.recv()
                 self._address_list[orientation].send((code, data))
 
     def add_client(self, client_socket, orientation):
-        direction_a = OneWayChannel(queue=Queue())
-        direction_b = OneWayChannel(queue=Queue())
-        channel_keep = TwoWayChannel(in_channel=direction_a, out_channel=direction_b)
-        channel_send = TwoWayChannel(in_channel=direction_b, out_channel=direction_a)
+        channel_keep, channel_send = Utilities.channel.create(directed=False)
         self._address_list[orientation] = channel_keep
         self._children[orientation] = ClientConnection(client_socket=client_socket, channel=channel_send)
         self._children[orientation].start()

@@ -3,14 +3,14 @@ import multiprocessing
 import pygame
 import win32con
 
-from Graphic.Display import current_display_dimensions
+from Graphic.display import current_display_dimensions
 from multiprocessing import Value
 from threading import Thread
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget
 import sys
 import win32gui
 import win32api
-from Utilities.Constants import WindowCodes, OperationCodes
+from Utilities.constants import WindowCodes, OperationCodes
 
 
 class Window(Thread):

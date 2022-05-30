@@ -3,22 +3,22 @@ Important Documentation
     Multiprocessing.Queue - https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue
     
 '''''
-from multiprocessing import Process
-from Utilities.channel import *
+from multiprocessing import Process, Value
+from Utilities.channel import DirectedChannel, UndirectedChannel
 
 import mouse
 
-from Graphic.Display import Display
-from Graphic.Point import Point
-from Utilities.Constants import Orientation, OperationCodes, ConnectionCodes, ActionCodes, WindowCodes
+from Graphic.display import Display
+from Graphic.point import Point
+from Utilities.constants import Orientation, OperationCodes, ConnectionCodes, ActionCodes, WindowCodes
 from Graphic.window import Window
 
 SCREEN_MARGIN = 2
 
 
 class Logic(Process):
-    def __init__(self, input_queue: OneWayChannel, output_queue: OneWayChannel, client_handle_channel: TwoWayChannel,
-                 operation_code: multiprocessing.Value):
+    def __init__(self, input_queue: DirectedChannel, output_queue: DirectedChannel,
+                 client_handle_channel: UndirectedChannel, operation_code: Value, passcode: str):
         super(Logic, self).__init__()
         self._input_queue = input_queue
         self._output_queue = output_queue
@@ -27,7 +27,7 @@ class Logic(Process):
         self._main_display = Display()
         self._displays = dict.fromkeys([Orientation.LEFT, Orientation.RIGHT,
                                         Orientation.TOP, Orientation.BOTTOM], None)
-        self._passcode = 'ABCDE'
+        self._passcode = passcode
         self._current_display = Orientation.MAIN
 
     def run(self) -> None:
@@ -93,7 +93,6 @@ class Logic(Process):
                             transparent_window.destroy()
                     elif self._current_display == Orientation.LEFT:
                         if data.x > self._main_display.width - SCREEN_MARGIN:
-
                             self._current_display = Orientation.MAIN
                             transparent_window.destroy()
                             mouse.move(SCREEN_MARGIN, y)
