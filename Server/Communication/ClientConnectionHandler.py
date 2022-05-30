@@ -1,15 +1,16 @@
 import multiprocessing
 from threading import Thread
-from Utilities.Constants import Orientation
-from Utilities.Constants import OperationCodes
+
+import Utilities.channel
+from Utilities.constants import Orientation, OperationCodes
 import pickle
-from Utilities.channel import TwoWayChannel, OneWayChannel
-from multiprocessing import Queue
+from Utilities.channel import DirectedChannel, UndirectedChannel
 from Server.Communication.ClientConnection import ClientConnection
 
 
 class ClientConnectionHandler(Thread):
-    def __init__(self, output_queue: OneWayChannel, channel: TwoWayChannel, operation_code: multiprocessing.Value):
+    def __init__(self, output_queue: DirectedChannel, channel: UndirectedChannel,
+                 operation_code: multiprocessing.Value):
         super(ClientConnectionHandler, self).__init__()
         self._output_queue = output_queue
         self._channel = channel
@@ -31,22 +32,20 @@ class ClientConnectionHandler(Thread):
     def run(self) -> None:
 
         while self._operation_code.value != OperationCodes.NOT_WORKING:
-            for display in self._address_list.keys():
-                client = self._address_list[display]
-                if client is not None:
-                    if client.readable():
-                        self._channel.send(pickle.dumps((display, client.recv(), '')))
-
-
             if self._output_queue.readable():
                 orientation, code, data = self._output_queue.recv()
                 self._address_list[orientation].send((code, data))
 
+            for client in self._address_list.keys():
+                if self._address_list[client] is not None:
+                    if self._address_list[client].readable():
+                        code, data = self._address_list[client].recv()
+                        self._channel.send((client, code, data))
+                        print(client, code, data)
+
+
     def add_client(self, client_socket, orientation):
-        direction_a = OneWayChannel(queue=Queue())
-        direction_b = OneWayChannel(queue=Queue())
-        channel_keep = TwoWayChannel(in_channel=direction_a, out_channel=direction_b)
-        channel_send = TwoWayChannel(in_channel=direction_b, out_channel=direction_a)
+        channel_keep, channel_send = Utilities.channel.create(directed=False)
         self._address_list[orientation] = channel_keep
         self._children[orientation] = ClientConnection(client_socket=client_socket, channel=channel_send)
         self._children[orientation].start()

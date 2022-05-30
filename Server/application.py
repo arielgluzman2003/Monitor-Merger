@@ -5,9 +5,9 @@ from threading import Thread
 from Server.Communication.communication import Communication
 from Server.Input.input import Input
 from Server.Logic.logic import Logic
-from Utilities.Constants import OperationCodes
-from Utilities.channel import OneWayChannel, TwoWayChannel
-
+from Utilities.constants import OperationCodes
+from Utilities.channel import DirectedChannel, UndirectedChannel
+import Utilities.channel
 
 # class Mechanism(Thread):
 class Mechanism:
@@ -52,18 +52,18 @@ class Mechanism:
         self.set_processes()
 
     def set_processes(self):
-        input_queue = OneWayChannel(queue=Queue())  # Inter-Process Shared Resource with Form of Queue
-        output_queue = OneWayChannel(queue=Queue())  # Inter-Process Shared Resource with Form of Queue
+        input_queue = DirectedChannel()  # Inter-Process Shared Resource with Form of Queue
+        output_queue = DirectedChannel()  # Inter-Process Shared Resource with Form of Queue
 
-        direction_a = OneWayChannel(queue=Queue())
-        direction_b = OneWayChannel(queue=Queue())
-        logic_client_handle_channel = TwoWayChannel(in_channel=direction_a, out_channel=direction_b)
-        communication_client_handle_channel = TwoWayChannel(in_channel=direction_b, out_channel=direction_a)
+        logic_client_handle_channel: UndirectedChannel
+        communication_client_handle_channel: UndirectedChannel
+        logic_client_handle_channel, communication_client_handle_channel = Utilities.channel.create(directed=False)
 
         self.logical_process = Logic(input_queue=input_queue,
                                      output_queue=output_queue,
                                      client_handle_channel=logic_client_handle_channel,
-                                     operation_code=self.operation_code)
+                                     operation_code=self.operation_code,
+                                     passcode="ABCDE")
 
         self.input_process = Input(input_queue=input_queue,
                                    operation_code=self.operation_code)

@@ -172,6 +172,10 @@ class SecureSocket:
     def settimeout(self, value: Optional[float]):
         self._socket.settimeout(value)
 
+    def setblocking(self, flag: bool):
+        self._socket.setblocking(flag)
+
+
 class SecureSocketException(Exception):
     '''
     Raised When an Exception Regarding SecureSocket's Occurs

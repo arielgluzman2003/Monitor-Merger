@@ -32,3 +32,6 @@ class Point:
         other_width, other_height = other.get_dimensions()
         self.x = int((self.x / this_width) * other_width)
         self.y = int((self.y / this_height) * other_height)
+
+    def __str__(self):
+        return str(self.x) + ', ' + str(self.y)
