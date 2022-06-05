@@ -49,6 +49,10 @@ class Communication(Process):
         self._server_socket.close()
 
     def working(self):
+        if self._operation_code.value != OperationCodes.NOT_WORKING:
+            print("WORKING")
+        else:
+            print("NOT WORKING")
         return self._operation_code.value != OperationCodes.NOT_WORKING
 
     def _recvblocking(self, attempts, delay=0.01):

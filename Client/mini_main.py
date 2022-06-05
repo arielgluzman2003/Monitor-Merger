@@ -1,13 +1,15 @@
 import ctypes
 import socket
 from typing import Tuple
+from screeninfo.common import Monitor
+from screeninfo import get_monitors
 import Graphic.display
 import Utilities.SecureSocket
-from Utilities.constants import Orientation, ActionCodes
+from Utilities.constants import Orientation, ActionCodes, ConnectionCodes
 import pickle
-import mouse
 from Graphic.point import Point
-from pynput.mouse import Button
+from pynput.mouse import Button, Controller as MouseController
+from pynput.keyboard import Key, Controller as KeyboardController
 
 PORT = 1234
 IP = "192.168.1.118"
@@ -30,14 +32,21 @@ def main(passcode):
     client_socket = Utilities.SecureSocket.SecureSocket()
     try:
         client_socket.connect((IP, PORT))
-        print("aa")
+        print("Connected")
     except:
         print("cant conect")
         exit(1)
 
-    my_display = Graphic.display.Display()
+    my_display: Monitor
 
-    client_socket.send(pickle.dumps((Orientation.TOP, passcode, my_display)))
+    for m in get_monitors():
+        if m.is_primary:
+            my_display = m
+
+    _mouse = MouseController()
+    _keyboard = KeyboardController()
+
+    client_socket.send(pickle.dumps((Orientation.LEFT, ConnectionCodes.CONNECTION_ATTEMPT, (passcode,my_display))))
     connection_code = client_socket.recv()
 
     if str(Utilities.constants.ConnectionCodes.CLIENT_DENIED_ORIENTATION_UNAVAILABLE) == connection_code or str(
@@ -48,32 +57,36 @@ def main(passcode):
     while True:
         action_code, data = pickle.loads(client_socket.recv())
 
-        print(action_code, data)
-
-        print(action_code, data)
         if action_code.value == ActionCodes.NEW_POSITION.value:
             # Data Is POINT
             data: Point
             x, y = data.x, data.y
-            mouse.move(x, y, absolute=True)
+            _mouse.position = x, y
 
         if action_code.value == ActionCodes.SCROLL.value:
             data: Tuple[int, int]
             dx, dy = data
-            mouse.wheel(dy)
+            print(action_code, dx, dy)
+            _mouse.scroll(dx, dy)
 
-        elif action_code.value == ActionCodes.LEFT_CLICK.value:
-            mouse.press('left')
-        elif action_code.value == ActionCodes.LEFT_RELEASE.value:
-            mouse.release('left')
-        elif action_code.value == ActionCodes.RIGHT_CLICK.value:
-            mouse.press('right')
-        elif action_code.value == ActionCodes.RIGHT_RELEASE.value:
-            mouse.release('right')
-        elif action_code.value == ActionCodes.MIDDLE_CLICK.value:
-            mouse.press('middle')
-        elif action_code.value == ActionCodes.MIDDLE_RELEASE.value:
-            mouse.release('middle')
+        elif action_code.value == ActionCodes.MOUSE_CLICK.value:
+            button, pressed = data
+            print(button, pressed)
+            if pressed:
+                _mouse.press(button)
+            else:
+                _mouse.release(button)
+
+        elif action_code.value == ActionCodes.KEYBOARD_CLICK.value:
+            key, pressed = data
+            print(key, pressed)
+            if pressed:
+                _keyboard.press(key)
+            else:
+                _keyboard.release(key)
+            #print(type(key))
+            print(key)
+
 
 if __name__ == '__main__':
     main("ABCDE")

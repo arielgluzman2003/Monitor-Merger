@@ -48,6 +48,7 @@ class Input(Process):
             if self._input_queue.writeable():
                 self._input_queue.send((ActionCodes.KEYBOARD_CLICK, (key, True)))
         else:
+            return False
             KeyboardListener.stop()
 
     # Keyboard Key-Release Event
@@ -56,6 +57,7 @@ class Input(Process):
             if self._input_queue.writeable():
                 self._input_queue.send((ActionCodes.KEYBOARD_CLICK, (key, False)))
         else:
+            return False
             KeyboardListener.stop()
 
     # Mouse-Move Event
@@ -64,6 +66,7 @@ class Input(Process):
             if self._input_queue.writeable():
                 self._input_queue.send((ActionCodes.NEW_POSITION, Point(x=x, y=y)))
         else:
+            return False
             MouseListener.stop()
 
     # Mouse-Click Event
@@ -72,6 +75,7 @@ class Input(Process):
             if self._input_queue.writeable():
                 self._input_queue.send((ActionCodes.MOUSE_CLICK, (button, pressed)))
         else:
+            return False
             MouseListener.stop()
 
     # Mouse Scroll Event
@@ -80,6 +84,7 @@ class Input(Process):
             if self._input_queue.writeable():
                 self._input_queue.send((ActionCodes.SCROLL, (dx, dy)))
         else:
+            return False
             MouseListener.stop()
 
     def working(self):

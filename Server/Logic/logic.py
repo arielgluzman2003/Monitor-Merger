@@ -6,9 +6,9 @@ Important Documentation
 from multiprocessing import Process, Value
 
 import clipboard
-import mouse
-
-from Graphic.display import Display
+from pynput.mouse import Controller as MouseController
+from screeninfo.common import Monitor
+from screeninfo import get_monitors
 from Graphic.point import Point
 from Graphic.window import Window
 from Utilities.channel import DirectedChannel, UndirectedChannel
@@ -25,11 +25,15 @@ class Logic(Process):
         self._output_queue = output_queue
         self._client_handle_channel = client_handle_channel
         self._operation_code = operation_code
-        self._main_display = Display()
-        self._displays = dict.fromkeys([Orientation.LEFT, Orientation.RIGHT,
-                                        Orientation.TOP, Orientation.BOTTOM], None)
         self._passcode = passcode
         self._current_display = Orientation.MAIN
+        self._main_display: Monitor
+        for monitor in get_monitors():
+            if monitor.is_primary:
+                self._main_display = monitor
+        self._displays = dict.fromkeys([Orientation.LEFT, Orientation.RIGHT,
+                                        Orientation.TOP, Orientation.BOTTOM], None)
+        self.mouse_controller = MouseController()
 
     def run(self) -> None:
         transparent_window = Window(operation_code=self._operation_code)
@@ -51,7 +55,7 @@ class Logic(Process):
                         if self._displays[orientation] is None:
                             self._client_handle_channel.send(ConnectionCodes.CLIENT_APPROVED)  # Accept Client
                             self._displays[orientation] = client_display
-                            print(self._displays[orientation].get_dimensions())
+                            print(self._displays[orientation].width, self._displays[orientation].height)
                         else:
                             self._client_handle_channel.send(
                                 ConnectionCodes.CLIENT_DENIED_ORIENTATION_UNAVAILABLE)  # Reject Client Due to
@@ -79,44 +83,43 @@ class Logic(Process):
                             if self._displays[Orientation.LEFT] is not None:
                                 self._current_display = Orientation.LEFT
                                 transparent_window.wake()
-                                mouse.move(self._main_display.width - SCREEN_MARGIN, data.y)
+                                self.mouse_controller.position = self._main_display.width - SCREEN_MARGIN, data.y
                         if data.x > self._main_display.width - SCREEN_MARGIN:
                             if self._displays[Orientation.RIGHT] is not None:
                                 self._current_display = Orientation.RIGHT
-
                                 self._input_queue.send((ActionCodes.NEW_POSITION, Point(x=SCREEN_MARGIN, y=data.y)))
-                                mouse.move(SCREEN_MARGIN, data.y)
+                                self.mouse_controller.position = SCREEN_MARGIN, data.y
                                 transparent_window.wake()
                         if data.y < SCREEN_MARGIN:
                             if self._displays[Orientation.TOP] is not None:
                                 self._current_display = Orientation.TOP
-                                mouse.move(data.x, self._main_display.height - SCREEN_MARGIN)
+                                self.mouse_controller.position = data.x, self._main_display.height - SCREEN_MARGIN
                                 transparent_window.wake()
                         if data.y > self._main_display.height - SCREEN_MARGIN:
                             if self._displays[Orientation.BOTTOM] is not None:
                                 self._current_display = Orientation.BOTTOM
-                                mouse.move(data.x, SCREEN_MARGIN)
+                                self.mouse_controller.position = data.x, SCREEN_MARGIN
                                 transparent_window.wake()
                     elif self._current_display == Orientation.RIGHT:
                         if data.x < SCREEN_MARGIN:
                             self._current_display = Orientation.MAIN
-                            mouse.move(self._main_display.width - SCREEN_MARGIN, data.y)
+                            self.mouse_controller.position = self._main_display.width - SCREEN_MARGIN, data.y
                             transparent_window.destroy()
                     elif self._current_display == Orientation.LEFT:
                         if data.x > self._main_display.width - SCREEN_MARGIN:
                             transparent_window.destroy()
                             self._input_queue.clear()
                             self._current_display = Orientation.MAIN
-                            mouse.move(SCREEN_MARGIN, data.y)
+                            self.mouse_controller.position = SCREEN_MARGIN, data.y
                     elif self._current_display == Orientation.TOP:
                         if data.y > self._main_display.height - SCREEN_MARGIN:
                             self._current_display = Orientation.MAIN
-                            mouse.move(data.x, SCREEN_MARGIN)
+                            self.mouse_controller.position = data.x, SCREEN_MARGIN
                             transparent_window.destroy()
                     elif self._current_display == Orientation.BOTTOM:
                         if data.y < SCREEN_MARGIN:
                             self._current_display = Orientation.MAIN
-                            mouse.move(data.x, self._main_display.height - SCREEN_MARGIN)
+                            self.mouse_controller.position = data.x, self._main_display.height - SCREEN_MARGIN
                             transparent_window.destroy()
 
                     if self._current_display != Orientation.MAIN:
@@ -135,15 +138,3 @@ class Logic(Process):
 
     def working(self):
         return self._operation_code.value != OperationCodes.NOT_WORKING
-
-
-def get_relative_point(src_display, dst_display, point):
-    if src_display.aspect_ratio != dst_display.aspect_ratio:
-        raise Exception("For Now.. Can't Create relative point between two displays with different aspect ratios")
-
-    ratio = 1
-    if dst_display.width > src_display.width:
-        ratio = dst_display.width / src_display.width
-    else:
-        ratio = src_display.width > dst_display.width
-    return Point(dst_display.width * ratio, dst_display.height * ratio)

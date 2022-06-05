@@ -1,73 +1,60 @@
-import multiprocessing
-from multiprocessing import Queue
-from threading import Thread
-
+import threading
+from tkinter import Tk, Button
+from multiprocessing import Value
 from Server.Communication.communication import Communication
 from Server.Input.input import Input
 from Server.Logic.logic import Logic
 from Utilities.constants import OperationCodes
-from Utilities.channel import DirectedChannel, UndirectedChannel
-import Utilities.channel
+from Utilities.channel import create
 
-# class Mechanism(Thread):
-class Mechanism:
 
-    def __init__(self, operation_code: multiprocessing.Value):
-        # super(Mechanism, self).__init__()
-        self._active = False
-        self.operation_code = operation_code
-        self.operation_code.value = OperationCodes.WORKING
+# from threading import Thread
 
-        self.logical_process = None
-        self.input_process = None
-        self.communication_process = None
-        self.set_processes()
+def start(operation_code: Value, code):
+    input_queue = create(directed=True)
+    output_queue = create(directed=True)
 
-    def operation(self):
-        if self._active:
-            self.stop()
-            self._active = False
+    logic_client_handle_channel, communication_client_handle_channel = create(directed=False)
 
-        else:
-            self.start()
-            self._active = True
+    logical_process = Logic(input_queue=input_queue,
+                            output_queue=output_queue,
+                            client_handle_channel=logic_client_handle_channel,
+                            operation_code=operation_code,
+                            passcode=code)
 
-        if self._active:
-            print("Now Active")
-        else:
-            print("Now Not Active")
+    input_process = Input(input_queue=input_queue,
+                          operation_code=operation_code)
 
-    def start(self):
-        self.operation_code.value = OperationCodes.WORKING
-        self.logical_process.start()
-        self.input_process.start()
-        self.communication_process.start()
+    communication_process = Communication(output_queue=output_queue,
+                                          channel=communication_client_handle_channel,
+                                          operation_code=operation_code)
 
-        self.logical_process.join()
-        self.input_process.join()
-        self.communication_process.join()
+    logical_process.start()
+    input_process.start()
+    communication_process.start()
 
-    def stop(self):
-        self.operation_code.value = OperationCodes.NOT_WORKING
-        self.set_processes()
 
-    def set_processes(self):
-        input_queue = DirectedChannel()  # Inter-Process Shared Resource with Form of Queue
-        output_queue = DirectedChannel()  # Inter-Process Shared Resource with Form of Queue
+def button_start_clicked(button: Button, operation_code: Value, code):
+    if operation_code.value == OperationCodes.WORKING:
+        button['text'] = 'START'
+        operation_code.value = OperationCodes.NOT_WORKING
+    else:
+        button['text'] = 'STOP'
+        operation_code.value = OperationCodes.WORKING
+        start(operation_code, code)
 
-        logic_client_handle_channel: UndirectedChannel
-        communication_client_handle_channel: UndirectedChannel
-        logic_client_handle_channel, communication_client_handle_channel = Utilities.channel.create(directed=False)
 
-        self.logical_process = Logic(input_queue=input_queue,
-                                     output_queue=output_queue,
-                                     client_handle_channel=logic_client_handle_channel,
-                                     operation_code=self.operation_code,
-                                     passcode="ABCDE")
+def main(code):
+    operation_code = Value('i', OperationCodes.NOT_WORKING)
+    window = Tk()
+    window.geometry('500x500')
+    operation_button = Button(window, text='START',
+                              command=lambda: threading.Thread(target=button_start_clicked,
+                                                               args=(operation_button, operation_code, code,)).start())
+    operation_button.pack()
+    window.mainloop()
 
-        self.input_process = Input(input_queue=input_queue,
-                                   operation_code=self.operation_code)
 
-        self.communication_process = Communication(output_queue=output_queue,
-                                                   channel=communication_client_handle_channel,
-                                                   operation_code=self.operation_code)
+if __name__ == '__main__':
+    passcode = 'ABCDE'
+    main(passcode)
