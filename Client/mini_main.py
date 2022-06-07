@@ -3,38 +3,37 @@ import socket
 from typing import Tuple
 from screeninfo.common import Monitor
 from screeninfo import get_monitors
-import Graphic.display
-import Utilities.SecureSocket
 from Utilities.constants import Orientation, ActionCodes, ConnectionCodes
 import pickle
 from Graphic.point import Point
 from pynput.mouse import Button, Controller as MouseController
 from pynput.keyboard import Key, Controller as KeyboardController
+from Utilities.SecureSocket import SecureSocket, SecureSocketException
 
 PORT = 1234
 IP = "192.168.1.118"
 
 
-def ip_finder():
-    client_socket = Utilities.SecureSocket.SecureSocket()
+def host_finder(port=PORT):
+    client_socket = SecureSocket()
     client_socket.settimeout(1)
-    ip = '192.168.1.'
+    subdomain = '192.168.1.'
     for i in range(2, 256):
-        ip_new = ip + str(i)
+        ip = subdomain + str(i)
         try:
-            client_socket.connect((ip_new, PORT))
-            print(ip_new)
-        except:
-            print('ip ' + ip_new + " is not available.")
+            client_socket.connect((ip, PORT))
+            print(ip)
+            return ip, client_socket
+        except SecureSocketException:
+            continue
+    return None, None
 
 
 def main(passcode):
-    client_socket = Utilities.SecureSocket.SecureSocket()
-    try:
-        client_socket.connect((IP, PORT))
-        print("Connected")
-    except:
-        print("cant conect")
+    address, client_socket = host_finder()
+
+    if client_socket is None:
+        print("Can't Connect")
         exit(1)
 
     my_display: Monitor
@@ -46,11 +45,11 @@ def main(passcode):
     _mouse = MouseController()
     _keyboard = KeyboardController()
 
-    client_socket.send(pickle.dumps((Orientation.LEFT, ConnectionCodes.CONNECTION_ATTEMPT, (passcode,my_display))))
+    client_socket.send(pickle.dumps((Orientation.LEFT, ConnectionCodes.CONNECTION_ATTEMPT, (passcode, my_display))))
     connection_code = client_socket.recv()
 
-    if str(Utilities.constants.ConnectionCodes.CLIENT_DENIED_ORIENTATION_UNAVAILABLE) == connection_code or str(
-            Utilities.constants.ConnectionCodes.CLIENT_DENIED_PASSCODE_WRONG) == connection_code:
+    if str(ConnectionCodes.CLIENT_DENIED_ORIENTATION_UNAVAILABLE) == connection_code or str(
+            ConnectionCodes.CLIENT_DENIED_PASSCODE_WRONG) == connection_code:
         print("Cant Connect Something Went Wrong")
         exit(1)
 
@@ -84,7 +83,7 @@ def main(passcode):
                 _keyboard.press(key)
             else:
                 _keyboard.release(key)
-            #print(type(key))
+            # print(type(key))
             print(key)
 
 
