@@ -9,28 +9,36 @@ from Graphic.point import Point
 from pynput.mouse import Button, Controller as MouseController
 from pynput.keyboard import Key, Controller as KeyboardController
 from Utilities.SecureSocket import SecureSocket, SecureSocketException
+from typing import List
 
 PORT = 1234
-IP = "192.168.1.118"
 
 
-def host_finder(port=PORT):
-    client_socket = SecureSocket()
-    client_socket.settimeout(1)
-    subdomain = '192.168.1.'
-    for i in range(2, 256):
-        ip = subdomain + str(i)
-        try:
-            client_socket.connect((ip, PORT))
-            print(ip)
-            return ip, client_socket
-        except SecureSocketException:
-            continue
+def host_finder(subdomains: List[str], port=PORT):
+    for subdomain in subdomains:
+        if len(subdomain.split('.')) == 4:
+            subdomain = '.'.join(subdomain.split('.')[:-1])  # Remove Last Octet
+            subdomain += '.'
+        for i in range(2, 256):
+            client_socket = SecureSocket()
+            default_timeout = client_socket.gettimeout()
+            client_socket.settimeout(0.01)
+            ip = subdomain + str(i)
+            try:
+                client_socket.connect((ip, PORT))
+                client_socket.settimeout(default_timeout)
+                return ip, client_socket
+            except SecureSocketException:
+                print(ip, '- Not A Host')
     return None, None
 
 
 def main(passcode):
-    address, client_socket = host_finder()
+    subdomains = ['192.168.1.0', '10.0.2.0']
+    address, client_socket = host_finder(subdomains)
+
+    # client_socket = SecureSocket()
+    # client_socket.connect((IP, PORT))
 
     if client_socket is None:
         print("Can't Connect")
