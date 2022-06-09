@@ -76,7 +76,6 @@ class Logic(Process):
                 # print(code, data)
                 if code is ActionCodes.NEW_POSITION:
                     data: Point
-
                     # Check For Screen Changes
                     if self._current_display == Orientation.MAIN:
                         if data.x < SCREEN_MARGIN:
@@ -103,23 +102,27 @@ class Logic(Process):
                     elif self._current_display == Orientation.RIGHT:
                         if data.x < SCREEN_MARGIN:
                             self._current_display = Orientation.MAIN
-                            self.mouse_controller.position = self._main_display.width - SCREEN_MARGIN, data.y
+                            for _ in range(100):
+                                self.mouse_controller.position = self._main_display.width - SCREEN_MARGIN, data.y
                             transparent_window.destroy()
                     elif self._current_display == Orientation.LEFT:
                         if data.x > self._main_display.width - SCREEN_MARGIN:
                             transparent_window.destroy()
                             self._input_queue.clear()
                             self._current_display = Orientation.MAIN
-                            self.mouse_controller.position = SCREEN_MARGIN, data.y
+                            for _ in range(50):
+                                self.mouse_controller.position = SCREEN_MARGIN, data.y
                     elif self._current_display == Orientation.TOP:
                         if data.y > self._main_display.height - SCREEN_MARGIN:
                             self._current_display = Orientation.MAIN
-                            self.mouse_controller.position = data.x, SCREEN_MARGIN
+                            for _ in range(100):
+                                self.mouse_controller.position = data.x, SCREEN_MARGIN
                             transparent_window.destroy()
                     elif self._current_display == Orientation.BOTTOM:
                         if data.y < SCREEN_MARGIN:
                             self._current_display = Orientation.MAIN
-                            self.mouse_controller.position = data.x, self._main_display.height - SCREEN_MARGIN
+                            for _ in range(100):
+                                self.mouse_controller.position = data.x, self._main_display.height - SCREEN_MARGIN
                             transparent_window.destroy()
 
                     if self._current_display != Orientation.MAIN:

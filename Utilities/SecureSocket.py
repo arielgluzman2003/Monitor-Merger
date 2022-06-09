@@ -34,6 +34,10 @@ class SecureSocket:
         self._public_key = None
         self._acceptor = -1
         self._socket = socket.socket(family, socktype)
+        self.allow_address_reuse()
+
+    def allow_address_reuse(self):
+        self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
     def bind(self, arguments):
         if int(self._acceptor) == -1:  # Socket orientation not yet defined, used at first call.
