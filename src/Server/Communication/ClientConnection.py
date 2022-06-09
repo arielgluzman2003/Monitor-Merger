@@ -1,8 +1,8 @@
 from threading import Thread
-from Utilities.SecureSocket import SecureSocketException, SecureSocket
-from Utilities.constants import ConnectionCodes
+from src.Utilities.SecureSocket import SecureSocketException, SecureSocket
+from src.Utilities.constants import ConnectionCodes
 import pickle
-from Utilities.channel import UndirectedChannel
+from src.Utilities.channel import UndirectedChannel
 from datetime import datetime
 
 

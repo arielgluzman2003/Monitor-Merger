@@ -1,15 +1,13 @@
 import random
-import string
 import threading
 from tkinter import Tk, Button, Label
 from tkinter.font import Font
 from multiprocessing import Value
-from typing import List
-from Server.Communication.communication import Communication
-from Server.Input.input import Input
-from Server.Logic.logic import Logic
-from Utilities.constants import OperationCodes
-from Utilities.channel import create
+from src.Server.Communication.communication import Communication
+from src.Input.input import Input
+from src.Logic.logic import Logic
+from src.Utilities.constants import OperationCodes
+from src.Utilities.channel import create
 
 
 def generate_code(length: int, charset: str):

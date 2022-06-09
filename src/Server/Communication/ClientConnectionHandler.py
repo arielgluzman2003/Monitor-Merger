@@ -1,11 +1,10 @@
 import multiprocessing
 from threading import Thread
 
-import Utilities.channel
-from Utilities.constants import Orientation, OperationCodes
-import pickle
-from Utilities.channel import DirectedChannel, UndirectedChannel
-from Server.Communication.ClientConnection import ClientConnection
+import src.Utilities.channel
+from src.Utilities.constants import Orientation, OperationCodes
+from src.Utilities.channel import DirectedChannel, UndirectedChannel
+from src.Server.Communication.ClientConnection import ClientConnection
 
 
 class ClientConnectionHandler(Thread):
@@ -45,7 +44,7 @@ class ClientConnectionHandler(Thread):
 
 
     def add_client(self, client_socket, orientation):
-        channel_keep, channel_send = Utilities.channel.create(directed=False)
+        channel_keep, channel_send = src.Utilities.channel.create(directed=False)
         self._address_list[orientation] = channel_keep
         self._children[orientation] = ClientConnection(client_socket=client_socket, channel=channel_send)
         self._children[orientation].start()

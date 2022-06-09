@@ -1,4 +1,4 @@
-from Graphic.point import Point
+from src.Graphic.point import Point
 import mouse
 
 

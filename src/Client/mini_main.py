@@ -1,14 +1,12 @@
-import ctypes
-import socket
 from typing import Tuple
 from screeninfo.common import Monitor
 from screeninfo import get_monitors
-from Utilities.constants import Orientation, ActionCodes, ConnectionCodes
+from src.Utilities.constants import Orientation, ActionCodes, ConnectionCodes
 import pickle
-from Graphic.point import Point
-from pynput.mouse import Button, Controller as MouseController
-from pynput.keyboard import Key, Controller as KeyboardController
-from Utilities.SecureSocket import SecureSocket, SecureSocketException
+from src.Graphic.point import Point
+from pynput.mouse import Controller as MouseController
+from pynput.keyboard import Controller as KeyboardController
+from src.Utilities.SecureSocket import SecureSocket, SecureSocketException
 from typing import List
 
 PORT = 1234

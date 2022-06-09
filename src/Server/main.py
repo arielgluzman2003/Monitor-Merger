@@ -1,10 +1,10 @@
-from Server.Communication.communication import Communication
-from Server.Input.input import Input
-from Server.Logic.logic import Logic
-from Utilities.constants import OperationCodes
-from Utilities.channel import DirectedChannel, UndirectedChannel
+from src.Server.Communication.communication import Communication
+from src.Input.input import Input
+from src.Logic.logic import Logic
+from src.Utilities.constants import OperationCodes
+from src.Utilities.channel import DirectedChannel, UndirectedChannel
 from multiprocessing import Value, Process
-import Utilities.channel
+import src.Utilities.channel
 import random
 
 TITLE = "Display Merger"
@@ -29,10 +29,10 @@ def main(code):
 
     operation_code = Value('i', OperationCodes.NOT_WORKING)
 
-    input_queue = Utilities.channel.create(directed=True)
-    output_queue = Utilities.channel.create(directed=True)
+    input_queue = src.Utilities.channel.create(directed=True)
+    output_queue = src.Utilities.channel.create(directed=True)
 
-    logic_client_handle_channel, communication_client_handle_channel = Utilities.channel.create(directed=False)
+    logic_client_handle_channel, communication_client_handle_channel = src.Utilities.channel.create(directed=False)
 
     logical_process = Logic(input_queue=input_queue,
                             output_queue=output_queue,

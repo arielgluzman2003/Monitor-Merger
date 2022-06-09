@@ -9,10 +9,8 @@ from multiprocessing import Value
 import pygame
 import win32con
 import win32gui
-import win32api
-from Utilities.constants import WindowCodes, OperationCodes
+from src.Utilities.constants import OperationCodes
 from multiprocessing import Process
-from ctypes import windll
 
 TRUE = win32con.TRUE
 FALSE = win32con.FALSE

@@ -9,10 +9,10 @@ import clipboard
 from pynput.mouse import Controller as MouseController
 from screeninfo.common import Monitor
 from screeninfo import get_monitors
-from Graphic.point import Point
-from Graphic.window import Window
-from Utilities.channel import DirectedChannel, UndirectedChannel
-from Utilities.constants import Orientation, OperationCodes, ConnectionCodes, ActionCodes
+from src.Graphic.point import Point
+from src.Graphic.window import Window
+from src.Utilities.channel import DirectedChannel, UndirectedChannel
+from src.Utilities.constants import Orientation, OperationCodes, ConnectionCodes, ActionCodes
 
 SCREEN_MARGIN = 2
 
