@@ -1,10 +1,13 @@
 import os
+import pickle
 from tkinter.font import Font
 from tkinter.tix import *
 from typing import List
-from src.Utilities.SecureSocket import SecureSocket, SecureSocketException
-from src.Utilities.constants import Orientation
 
+from screeninfo import get_monitors, Monitor
+
+from src.Utilities.SecureSocket import SecureSocket, SecureSocketException
+from src.Utilities.constants import Orientation, ConnectionCodes
 
 PORT = 1234
 
@@ -28,21 +31,39 @@ def host_finder(subdomains: List[str], port=PORT):
     return None, None
 
 
-def start(var: IntVar, button: Button, label: Label):
-    orientations = [member.value for member in Orientation]
-    if var.get() not in orientations:
-        label['text'] = 'No Option Chosen'
-        return
+def connect(orientation: IntVar, info_label: Label, code: str):
+    print(f'trying to connect {orientation.get()}, with code {code}')
+    sock, address = host_finder(['192.168.1.0', '10.0.8.0'], port=PORT)
+    if sock is None:
+        info_label.config(text='No Server Found')
+        return 'No Server Found'
 
-    label['text'] = 'Searching..'
-    print(Orientation(var.get()))
-    subdomains = ['192.168.1.0', '10.0.2.0']
-    address, client_socket = host_finder(subdomains)
 
-    if client_socket is None:
-        print("Can't Connect")
-        label['text'] = 'No Server Found'
-        return
+    my_display: Monitor
+    for m in get_monitors():
+        if m.is_primary:
+            my_display = m
+
+    sock: SecureSocket
+    sock.send(pickle.dumps((Orientation.LEFT, ConnectionCodes.CONNECTION_ATTEMPT, (code, my_display))))
+    connection_code = sock.recv()
+
+    if str(ConnectionCodes.CLIENT_DENIED_PASSCODE_WRONG) == connection_code:
+        info_label.config(text='Code Incorrect')
+        return 'Code Incorrect'
+
+    if str(ConnectionCodes.CLIENT_DENIED_ORIENTATION_UNAVAILABLE) == connection_code:
+        orientation_code: int = orientation.get()
+        if orientation_code == Orientation.LEFT.value:
+            info_label.config(text='Left Monitor Is Already Taken.')
+        if orientation_code == Orientation.RIGHT.value:
+            info_label.config(text='Right Monitor Is Already Taken.')
+        if orientation_code == Orientation.TOP.value:
+            info_label.config(text='Top Monitor Is Already Taken.')
+        if orientation_code == Orientation.BOTTOM.value:
+            info_label.config(text='Bottom Monitor Is Already Taken.')
+
+        return 'Orientation Unavailable'
 
 
 def connect_widgets(window: Tk):
@@ -121,6 +142,14 @@ def connect_widgets(window: Tk):
     bottomRadioButton.place(x=160, y=310, width=90, height=25)
     # bottomRadioButton["command"] = self.bottomRadioButton_command
 
+    connectionInfoLabel = Label(window)
+    ft = Font(family='Times', size=18)
+    connectionInfoLabel["font"] = ft
+    connectionInfoLabel["fg"] = "#333333"
+    connectionInfoLabel["justify"] = "center"
+    connectionInfoLabel["text"] = ""
+    connectionInfoLabel.place(x=100, y=350, width=209, height=41)
+
     connectButton = Button(window)
     connectButton["bg"] = "#f0f0f0"
     ft = Font(family='Times', size=23)
@@ -129,15 +158,7 @@ def connect_widgets(window: Tk):
     connectButton["justify"] = "center"
     connectButton["text"] = "Connect"
     connectButton.place(x=120, y=240, width=156, height=48)
-    # connectButton["command"] = self.connectButton_command
-
-    connectionInfoLabel = Label(window)
-    ft = Font(family='Times', size=13)
-    connectionInfoLabel["font"] = ft
-    connectionInfoLabel["fg"] = "#333333"
-    connectionInfoLabel["justify"] = "center"
-    connectionInfoLabel["text"] = "Waiting....."
-    connectionInfoLabel.place(x=100, y=350, width=209, height=41)
+    connectButton["command"] = lambda: connect(orientation, connectionInfoLabel, codeForm.get())
 
 
 def host_widgets(window: Tk):
