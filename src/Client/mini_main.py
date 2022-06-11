@@ -1,7 +1,9 @@
+import multiprocessing
+from threading import Thread
 from typing import Tuple
 from screeninfo.common import Monitor
 from screeninfo import get_monitors
-from src.Utilities.constants import Orientation, ActionCodes, ConnectionCodes
+from src.Utilities.constants import Orientation, ActionCodes, ConnectionCodes, OperationCodes
 import pickle
 from src.Graphic.point import Point
 from pynput.mouse import Controller as MouseController
@@ -9,89 +11,49 @@ from pynput.keyboard import Controller as KeyboardController
 from src.Utilities.SecureSocket import SecureSocket, SecureSocketException
 from typing import List
 
-PORT = 1234
 
+class Client(Thread):
 
-def host_finder(subdomains: List[str], port=PORT):
-    for subdomain in subdomains:
-        if len(subdomain.split('.')) == 4:
-            subdomain = '.'.join(subdomain.split('.')[:-1])  # Remove Last Octet
-            subdomain += '.'
-        for i in range(2, 256):
-            client_socket = SecureSocket()
-            default_timeout = client_socket.gettimeout()
-            client_socket.settimeout(0.01)
-            ip = subdomain + str(i)
-            try:
-                client_socket.connect((ip, PORT))
-                client_socket.settimeout(default_timeout)
-                return ip, client_socket
-            except SecureSocketException:
-                print(ip, '- Not A Host')
-    return None, None
+    def __init__(self, client_socket: SecureSocket, operation_code: multiprocessing.Value):
+        super().__init__()
+        self.client_socket = client_socket
+        self.operation_code = operation_code
+        self._mouse = MouseController()
+        self._keyboard = KeyboardController()
 
+    def run(self) -> None:
 
-def main(passcode):
-    subdomains = ['192.168.1.0', '10.0.2.0']
-    address, client_socket = host_finder(subdomains)
+        while self.running():
+            action_code, data = pickle.loads(self.client_socket.recv())
 
-    # client_socket = SecureSocket()
-    # client_socket.connect((IP, PORT))
+            if action_code.value == ActionCodes.NEW_POSITION.value:
+                # Data Is POINT
+                data: Point
+                x, y = data.x, data.y
+                self._mouse.position = x, y
 
-    if client_socket is None:
-        print("Can't Connect")
-        exit(1)
+            if action_code.value == ActionCodes.SCROLL.value:
+                data: Tuple[int, int]
+                dx, dy = data
+                print(action_code, dx, dy)
+                self._mouse.scroll(dx, dy)
 
-    my_display: Monitor
+            elif action_code.value == ActionCodes.MOUSE_CLICK.value:
+                button, pressed = data
+                print(button, pressed)
+                if pressed:
+                    self._mouse.press(button)
+                else:
+                    self._mouse.release(button)
 
-    for m in get_monitors():
-        if m.is_primary:
-            my_display = m
+            elif action_code.value == ActionCodes.KEYBOARD_CLICK.value:
+                key, pressed = data
+                print(key, pressed)
+                if pressed:
+                    self._keyboard.press(key)
+                else:
+                    self._keyboard.release(key)
+                print(key)
 
-    _mouse = MouseController()
-    _keyboard = KeyboardController()
-
-    client_socket.send(pickle.dumps((Orientation.LEFT, ConnectionCodes.CONNECTION_ATTEMPT, (passcode, my_display))))
-    connection_code = client_socket.recv()
-
-    if str(ConnectionCodes.CLIENT_DENIED_ORIENTATION_UNAVAILABLE) == connection_code or str(
-            ConnectionCodes.CLIENT_DENIED_PASSCODE_WRONG) == connection_code:
-        print("Cant Connect Something Went Wrong")
-        exit(1)
-
-    while True:
-        action_code, data = pickle.loads(client_socket.recv())
-
-        if action_code.value == ActionCodes.NEW_POSITION.value:
-            # Data Is POINT
-            data: Point
-            x, y = data.x, data.y
-            _mouse.position = x, y
-
-        if action_code.value == ActionCodes.SCROLL.value:
-            data: Tuple[int, int]
-            dx, dy = data
-            print(action_code, dx, dy)
-            _mouse.scroll(dx, dy)
-
-        elif action_code.value == ActionCodes.MOUSE_CLICK.value:
-            button, pressed = data
-            print(button, pressed)
-            if pressed:
-                _mouse.press(button)
-            else:
-                _mouse.release(button)
-
-        elif action_code.value == ActionCodes.KEYBOARD_CLICK.value:
-            key, pressed = data
-            print(key, pressed)
-            if pressed:
-                _keyboard.press(key)
-            else:
-                _keyboard.release(key)
-            # print(type(key))
-            print(key)
-
-
-if __name__ == '__main__':
-    main("ABCDE")
+    def running(self):
+        return self.operation_code.value != OperationCodes.NOT_WORKING.value

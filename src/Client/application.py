@@ -1,13 +1,15 @@
+import multiprocessing
 import os
 import pickle
 from tkinter.font import Font
 from tkinter.tix import *
 from typing import List
-
 from screeninfo import get_monitors, Monitor
 
+from src.Client.mini_main import Client
 from src.Utilities.SecureSocket import SecureSocket, SecureSocketException
-from src.Utilities.constants import Orientation, ConnectionCodes
+from src.Utilities.constants import Orientation, ConnectionCodes, OperationCodes
+from multiprocessing import Value
 
 PORT = 1234
 
@@ -31,13 +33,12 @@ def host_finder(subdomains: List[str], port=PORT):
     return None, None
 
 
-def connect(orientation: IntVar, info_label: Label, code: str):
+def connect(orientation: IntVar, info_label: Label, code: str, operation_code: multiprocessing.Value):
     print(f'trying to connect {orientation.get()}, with code {code}')
     sock, address = host_finder(['192.168.1.0', '10.0.8.0'], port=PORT)
     if sock is None:
         info_label.config(text='No Server Found')
         return 'No Server Found'
-
 
     my_display: Monitor
     for m in get_monitors():
@@ -66,7 +67,9 @@ def connect(orientation: IntVar, info_label: Label, code: str):
         return 'Orientation Unavailable'
 
 
-def connect_widgets(window: Tk):
+
+
+def connect_widgets(window: Tk, operation_code: multiprocessing.Value):
     for widget in window.winfo_children():
         widget.destroy()
 
@@ -78,7 +81,7 @@ def connect_widgets(window: Tk):
     backButton["justify"] = "center"
     backButton["text"] = "← back"
     backButton.place(x=10, y=10, width=70, height=25)
-    backButton["command"] = lambda: init_widgets(window)
+    backButton["command"] = lambda: init_widgets(window, operation_code)
 
     orientation = IntVar()
     enterCodeLabel = Label(window)
@@ -148,7 +151,7 @@ def connect_widgets(window: Tk):
     connectionInfoLabel["fg"] = "#333333"
     connectionInfoLabel["justify"] = "center"
     connectionInfoLabel["text"] = ""
-    connectionInfoLabel.place(x=100, y=350, width=209, height=41)
+    connectionInfoLabel.place(x=50, y=350, width=300, height=41)
 
     connectButton = Button(window)
     connectButton["bg"] = "#f0f0f0"
@@ -202,7 +205,8 @@ def host_widgets(window: Tk):
     codeLabel.place(x=80, y=107, width=220, height=48)
 
 
-def init_widgets(window: Tk):
+def init_widgets(window: Tk, operation_code: multiprocessing.Value):
+    operation_code.value = OperationCodes.NOT_WORKING
     for widgets in window.winfo_children():
         widgets.destroy()
 
@@ -233,7 +237,7 @@ def init_widgets(window: Tk):
     connectButton["justify"] = "center"
     connectButton["text"] = "Connect"
     connectButton.place(x=130, y=220, width=131, height=30)
-    connectButton["command"] = lambda: connect_widgets(window)
+    connectButton["command"] = lambda: connect_widgets(window, operation_code)
 
     hostButtonTip = Balloon(window)
     hostButtonTip.bind_widget(hostButton, balloonmsg='Make This Computer Main Computer And Let Others Connect')
@@ -243,6 +247,7 @@ def init_widgets(window: Tk):
 
 
 def main():
+    operation_code = Value('i', OperationCodes.NOT_WORKING)
     window = Tk()
     window.title('Monitor Merger')
 
@@ -256,7 +261,7 @@ def main():
     window.resizable(width=False, height=False)
     window.iconbitmap(os.path.join('\\'.join(os.getcwd().split('\\')[:-2]), r'res\icon.ico'))
 
-    init_widgets(window)
+    init_widgets(window, operation_code)
 
     window.mainloop()
 
