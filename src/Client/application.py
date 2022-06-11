@@ -25,7 +25,7 @@ def host_finder(subdomains: List[str], port=PORT):
             try:
                 client_socket.connect((ip, PORT))
                 client_socket.settimeout(default_timeout)
-                return ip, client_socket
+                return client_socket, ip
             except SecureSocketException:
                 print(ip, '- Not A Host')
     return None, None
