@@ -45,14 +45,14 @@ def connect(orientation: IntVar, info_label: Label, code: str):
             my_display = m
 
     sock: SecureSocket
-    sock.send(pickle.dumps((Orientation.LEFT, ConnectionCodes.CONNECTION_ATTEMPT, (code, my_display))))
+    sock.send(pickle.dumps((Orientation(orientation.get()), ConnectionCodes.CONNECTION_ATTEMPT, (code, my_display))))
     connection_code = sock.recv()
 
-    if str(ConnectionCodes.CLIENT_DENIED_PASSCODE_WRONG) == connection_code:
+    if ConnectionCodes.CLIENT_DENIED_PASSCODE_WRONG.value == int(connection_code):
         info_label.config(text='Code Incorrect')
         return 'Code Incorrect'
 
-    if str(ConnectionCodes.CLIENT_DENIED_ORIENTATION_UNAVAILABLE) == connection_code:
+    if ConnectionCodes.CLIENT_DENIED_ORIENTATION_UNAVAILABLE.value == int(connection_code):
         orientation_code: int = orientation.get()
         if orientation_code == Orientation.LEFT.value:
             info_label.config(text='Left Monitor Is Already Taken.')
