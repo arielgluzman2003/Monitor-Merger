@@ -33,7 +33,11 @@ def host_finder(subdomains: List[str], port=PORT):
     return None, None
 
 
-def connect(orientation: IntVar, info_label: Label, code: str, operation_code: multiprocessing.Value):
+def connect(orientation: IntVar, info_label: Label, code: str, startButton: Button, operation_code: multiprocessing.Value):
+    if operation_code.value == OperationCodes.WORKING:
+        operation_code.value = OperationCodes.NOT_WORKING
+        return
+
     print(f'trying to connect {orientation.get()}, with code {code}')
     sock, address = host_finder(['192.168.1.0', '10.0.8.0'], port=PORT)
     if sock is None:
@@ -67,6 +71,7 @@ def connect(orientation: IntVar, info_label: Label, code: str, operation_code: m
         return 'Orientation Unavailable'
 
     client = Client(sock, operation_code)
+    operation_code.value = OperationCodes.WORKING
     client.start()
 
 
@@ -162,7 +167,7 @@ def connect_widgets(window: Tk, operation_code: multiprocessing.Value):
     connectButton["justify"] = "center"
     connectButton["text"] = "Connect"
     connectButton.place(x=120, y=240, width=156, height=48)
-    connectButton["command"] = lambda: connect(orientation, connectionInfoLabel, codeForm.get(), operation_code)
+    connectButton["command"] = lambda: connect(orientation, connectionInfoLabel, codeForm.get(), connectButton,operation_code)
 
 
 def host_widgets(window: Tk):
