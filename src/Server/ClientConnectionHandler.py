@@ -42,7 +42,6 @@ class ClientConnectionHandler(Thread):
                         self._channel.send((client, code, data))
                         print(client, code, data)
 
-
     def add_client(self, client_socket, orientation):
         channel_keep, channel_send = src.Utilities.channel.create(directed=False)
         self._address_list[orientation] = channel_keep

@@ -22,6 +22,14 @@ import pickle
 import rsa
 
 
+def _construct(copy_socket, aes_object):
+    new_socket = SecureSocket()
+    new_socket._socket = copy_socket
+    new_socket._aes = aes_object
+    new_socket._acceptor = False
+    return new_socket
+
+
 class SecureSocket:
 
     def __init__(self, family=socket.AF_INET, socktype=socket.SOCK_STREAM, blocksize=32):
@@ -93,7 +101,7 @@ class SecureSocket:
         encrypted_symkey = client_socket.recv(4000)  # receiving an encrypted byte array of the symmetric key
         symmetric_key = rsa.decrypt(encrypted_symkey, self._private_key)  # decrypting byte array for symmetric key
 
-        return SecureSocket._construct(self, client_socket, AES.new(symmetric_key, AES.MODE_ECB)), addr
+        return _construct(client_socket, AES.new(symmetric_key, AES.MODE_ECB)), addr
 
     def connect(self, arguments):
         if int(self._acceptor) == -1:  # Socket orientation not yet defined, used at first call.
@@ -162,13 +170,6 @@ class SecureSocket:
 
     def close(self):
         self._socket.close()
-
-    def _construct(self, copy_socket, aes_object):
-        new_socket = SecureSocket()
-        new_socket._socket = copy_socket
-        new_socket._aes = aes_object
-        new_socket._acceptor = False
-        return new_socket
 
     def gettimeout(self) -> Optional[float]:
         return self._socket.gettimeout()
