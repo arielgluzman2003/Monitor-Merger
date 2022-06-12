@@ -66,7 +66,7 @@ def connect(orientation: IntVar, info_label: Label, code: str, operation_code: m
 
         return 'Orientation Unavailable'
 
-
+    Client.start()
 
 
 def connect_widgets(window: Tk, operation_code: multiprocessing.Value):
@@ -161,7 +161,7 @@ def connect_widgets(window: Tk, operation_code: multiprocessing.Value):
     connectButton["justify"] = "center"
     connectButton["text"] = "Connect"
     connectButton.place(x=120, y=240, width=156, height=48)
-    connectButton["command"] = lambda: connect(orientation, connectionInfoLabel, codeForm.get())
+    connectButton["command"] = lambda: connect(orientation, connectionInfoLabel, codeForm.get(), operation_code)
 
 
 def host_widgets(window: Tk):
