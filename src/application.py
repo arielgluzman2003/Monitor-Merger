@@ -286,7 +286,8 @@ def main():
     alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
     window.geometry(alignstr)
     window.resizable(width=False, height=False)
-#    window.iconbitmap(os.path.join('\\'.join(os.getcwd().split('\\')[:-2]), r'res\icon.ico'))
+    #window.iconbitmap(os.path.join('\\'.join(os.getcwd().split('\\')[:-2]), r'res\icon.ico'))
+    window.iconbitmap(r'C:\Users\Ariel Gluzman\Desktop\Monitor Merger\Monitor-Merger\res\icon.ico')
 
     init_widgets(window, operation_code)
 
