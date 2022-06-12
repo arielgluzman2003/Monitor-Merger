@@ -1,9 +1,9 @@
 import string
 from threading import Thread
 
-from src.Server.Communication.communication import Communication
-from src.Input.input import Input
-from src.Logic.logic import Logic
+from src.Server.communication import Communication
+from src.Server.input import Input
+from src.Server.logic import Logic
 from src.Utilities.constants import OperationCodes
 from src.Utilities.channel import DirectedChannel, UndirectedChannel
 from multiprocessing import Value, Process

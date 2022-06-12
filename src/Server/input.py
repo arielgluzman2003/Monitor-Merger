@@ -7,7 +7,6 @@ from pynput.mouse import Listener as MouseListener
 from pynput.keyboard import Listener as KeyboardListener
 from multiprocessing import Process, Value
 from src.Graphic.point import Point
-from src.Input.MouseHandler import MouseHandler
 from src.Utilities.constants import OperationCodes
 from src.Utilities.constants import ActionCodes
 from src.Utilities.channel import DirectedChannel
@@ -19,8 +18,6 @@ class Input(Process):
         super(Input, self).__init__()
         self._input_queue = input_queue
         self._operation_code = operation_code
-        self.mouse = MouseHandler()
-        self.last_position = self.mouse.get_position()
 
     def run(self) -> None:
         mouse_position = b''

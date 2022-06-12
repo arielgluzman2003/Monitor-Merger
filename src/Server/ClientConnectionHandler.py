@@ -4,7 +4,7 @@ from threading import Thread
 import src.Utilities.channel
 from src.Utilities.constants import Orientation, OperationCodes
 from src.Utilities.channel import DirectedChannel, UndirectedChannel
-from src.Server.Communication.ClientConnection import ClientConnection
+from src.Server.ClientConnection import ClientConnection
 
 
 class ClientConnectionHandler(Thread):

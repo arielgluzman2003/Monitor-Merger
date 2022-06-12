@@ -7,7 +7,7 @@ Important Documentation
 import time
 from multiprocessing import Process, Value
 from src.Utilities.SecureSocket import SecureSocket
-from src.Server.Communication.ClientConnectionHandler import ClientConnectionHandler
+from src.Server.ClientConnectionHandler import ClientConnectionHandler
 import pickle
 from src.Utilities.constants import OperationCodes
 from src.Utilities.constants import ConnectionCodes
