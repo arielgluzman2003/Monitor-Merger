@@ -66,7 +66,8 @@ def connect(orientation: IntVar, info_label: Label, code: str, operation_code: m
 
         return 'Orientation Unavailable'
 
-    Client.start()
+    client = Client(sock, operation_code)
+    client.start()
 
 
 def connect_widgets(window: Tk, operation_code: multiprocessing.Value):
