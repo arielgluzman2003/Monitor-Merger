@@ -1,15 +1,14 @@
 import multiprocessing
-import os
 import pickle
 from tkinter.font import Font
 from tkinter.tix import *
 from typing import List
 from screeninfo import get_monitors, Monitor
-
-from src.Client.mini_main import Client
+from src.Client.main import Client
 from src.Utilities.SecureSocket import SecureSocket, SecureSocketException
 from src.Utilities.constants import Orientation, ConnectionCodes, OperationCodes
 from multiprocessing import Value
+from Server.main import Server, generate_code
 
 PORT = 1234
 
@@ -33,15 +32,20 @@ def host_finder(subdomains: List[str], port=PORT):
     return None, None
 
 
-def connect(orientation: IntVar, info_label: Label, code: str, startButton: Button, operation_code: multiprocessing.Value):
+def connect(orientation: IntVar, info_label: Label, code: str, startButton: Button,
+            operation_code: multiprocessing.Value):
     if operation_code.value == OperationCodes.WORKING:
         operation_code.value = OperationCodes.NOT_WORKING
+        startButton['text'] = 'Connect'
         return
+
+    startButton['text'] = 'Disconnect'
 
     print(f'trying to connect {orientation.get()}, with code {code}')
     sock, address = host_finder(['192.168.1.0', '10.0.8.0'], port=PORT)
     if sock is None:
         info_label.config(text='No Server Found')
+        startButton['text'] = 'Connect'
         return 'No Server Found'
 
     my_display: Monitor
@@ -55,6 +59,7 @@ def connect(orientation: IntVar, info_label: Label, code: str, startButton: Butt
 
     if ConnectionCodes.CLIENT_DENIED_PASSCODE_WRONG.value == int(connection_code):
         info_label.config(text='Code Incorrect')
+        startButton['text'] = 'Connect'
         return 'Code Incorrect'
 
     if ConnectionCodes.CLIENT_DENIED_ORIENTATION_UNAVAILABLE.value == int(connection_code):
@@ -68,11 +73,24 @@ def connect(orientation: IntVar, info_label: Label, code: str, startButton: Butt
         if orientation_code == Orientation.BOTTOM.value:
             info_label.config(text='Bottom Monitor Is Already Taken.')
 
+        startButton['text'] = 'Connect'
         return 'Orientation Unavailable'
 
     client = Client(sock, operation_code)
     operation_code.value = OperationCodes.WORKING
     client.start()
+
+
+def host(operation_code, startButton: Button, code: str):
+    if operation_code.value == OperationCodes.WORKING:
+        operation_code.value = OperationCodes.NOT_WORKING
+        startButton['text'] = 'Start'
+        return
+
+    startButton['text'] = 'Stop'
+
+    server = Server(code, operation_code)
+    server.start()
 
 
 def connect_widgets(window: Tk, operation_code: multiprocessing.Value):
@@ -167,10 +185,13 @@ def connect_widgets(window: Tk, operation_code: multiprocessing.Value):
     connectButton["justify"] = "center"
     connectButton["text"] = "Connect"
     connectButton.place(x=120, y=240, width=156, height=48)
-    connectButton["command"] = lambda: connect(orientation, connectionInfoLabel, codeForm.get(), connectButton,operation_code)
+    connectButton["command"] = lambda: connect(orientation, connectionInfoLabel, codeForm.get(), connectButton,
+                                               operation_code)
 
 
-def host_widgets(window: Tk):
+def host_widgets(window: Tk, operation_code: Value):
+    code = generate_code()
+
     for widgets in window.winfo_children():
         widgets.destroy()
 
@@ -184,6 +205,14 @@ def host_widgets(window: Tk):
     backButton.place(x=10, y=10, width=70, height=25)
     backButton["command"] = lambda: init_widgets(window)
 
+    codeLabel = Label(window)
+    ft = Font(family='Times', size=48)
+    codeLabel["font"] = ft
+    codeLabel["fg"] = "#333333"
+    codeLabel["justify"] = "center"
+    codeLabel["text"] = code
+    codeLabel.place(x=80, y=107, width=220, height=48)
+
     operationButton = Button(window)
     operationButton["bg"] = "#f0f0f0"
     ft = Font(family='Times', size=28)
@@ -192,7 +221,7 @@ def host_widgets(window: Tk):
     operationButton["justify"] = "center"
     operationButton["text"] = "Start"
     operationButton.place(x=100, y=260, width=194, height=46)
-    # operationButton["command"] = self.operationButton_command
+    operationButton["command"] = lambda: host(operation_code, operationButton, code)
 
     hostInfoLabel = Label(window)
     ft = Font(family='Times', size=15)
@@ -201,14 +230,6 @@ def host_widgets(window: Tk):
     hostInfoLabel["justify"] = "center"
     hostInfoLabel["text"] = "To Connect,\nEnter The Code:"
     hostInfoLabel.place(x=25, y=40, width=130, height=50)
-
-    codeLabel = Label(window)
-    ft = Font(family='Times', size=48)
-    codeLabel["font"] = ft
-    codeLabel["fg"] = "#333333"
-    codeLabel["justify"] = "center"
-    codeLabel["text"] = "ABCDE"
-    codeLabel.place(x=80, y=107, width=220, height=48)
 
 
 def init_widgets(window: Tk, operation_code: multiprocessing.Value):
@@ -233,7 +254,7 @@ def init_widgets(window: Tk, operation_code: multiprocessing.Value):
     hostButton["justify"] = "center"
     hostButton["text"] = "Host"
     hostButton.place(x=130, y=150, width=131, height=30)
-    hostButton["command"] = lambda: host_widgets(window)
+    hostButton["command"] = lambda: host_widgets(window, operation_code)
 
     connectButton = Button(window)
     connectButton["bg"] = "#f0f0f0"
@@ -265,12 +286,12 @@ def main():
     alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
     window.geometry(alignstr)
     window.resizable(width=False, height=False)
-    window.iconbitmap(os.path.join('\\'.join(os.getcwd().split('\\')[:-2]), r'res\icon.ico'))
+#    window.iconbitmap(os.path.join('\\'.join(os.getcwd().split('\\')[:-2]), r'res\icon.ico'))
 
     init_widgets(window, operation_code)
 
     window.mainloop()
-
+    operation_code.value = OperationCodes.NOT_WORKING
 
 def operation():
     pass

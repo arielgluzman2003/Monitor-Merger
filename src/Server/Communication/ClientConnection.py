@@ -21,7 +21,7 @@ class ClientConnection(Thread):
                     message = self._socket.recv()
                     action_code, data = pickle.loads(message)
                     self._socket.setblocking(True)
-                except SecureSocketException:
+                except (SecureSocketException, ValueError):
                     self._socket.setblocking(True)
 
             if self._channel.readable():
