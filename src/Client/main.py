@@ -1,3 +1,9 @@
+"""
+author: Ariel Gluzman
+date: 2022
+email: ariel.gluzman@gmail.com
+"""
+
 import multiprocessing
 from threading import Thread
 from typing import Tuple

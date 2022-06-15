@@ -1,8 +1,9 @@
-''''
-Important Documentation
-    Multiprocessing.Queue - https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue
+"""
+author: Ariel Gluzman
+date: 2022
+email: ariel.gluzman@gmail.com
+"""
 
-'''''
 from pynput.mouse import Listener as MouseListener
 from pynput.keyboard import Listener as KeyboardListener
 from multiprocessing import Process, Value

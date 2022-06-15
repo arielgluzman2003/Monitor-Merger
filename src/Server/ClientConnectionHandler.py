@@ -1,6 +1,11 @@
+"""
+author: Ariel Gluzman
+date: 2022
+email: ariel.gluzman@gmail.com
+"""
+
 import multiprocessing
 from threading import Thread
-
 import src.Utilities.channel
 from src.Utilities.constants import Orientation, OperationCodes
 from src.Utilities.channel import DirectedChannel, UndirectedChannel

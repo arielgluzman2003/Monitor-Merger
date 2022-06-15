@@ -1,3 +1,9 @@
+"""
+author: Ariel Gluzman
+date: 2022
+email: ariel.gluzman@gmail.com
+"""
+
 from threading import Thread
 from src.Utilities.SecureSocket import SecureSocketException, SecureSocket
 from src.Utilities.constants import ConnectionCodes

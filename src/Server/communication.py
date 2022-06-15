@@ -1,8 +1,8 @@
-''''
-Important Documentation
-    Multiprocessing.Queue - https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue
-
-'''''
+"""
+author: Ariel Gluzman
+date: 2022
+email: ariel.gluzman@gmail.com
+"""
 
 import time
 from multiprocessing import Process, Value

@@ -1,8 +1,9 @@
-''''
-Important Documentation
-    Multiprocessing.Queue - https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue
-    
-'''''
+"""
+author: Ariel Gluzman
+date: 2022
+email: ariel.gluzman@gmail.com
+"""
+
 from multiprocessing import Process, Value
 
 import clipboard
@@ -10,7 +11,7 @@ from pynput.mouse import Controller as MouseController
 from screeninfo.common import Monitor
 from screeninfo import get_monitors
 from src.Graphic.point import Point
-from src.Graphic.window import Window
+from src.Graphic.transparent_window import TransparentWindow
 from src.Utilities.channel import DirectedChannel, UndirectedChannel
 from src.Utilities.constants import Orientation, OperationCodes, ConnectionCodes, ActionCodes
 
@@ -36,7 +37,7 @@ class Logic(Process):
         self.mouse_controller = MouseController()
 
     def run(self) -> None:
-        transparent_window = Window(operation_code=self._operation_code)
+        transparent_window = TransparentWindow(operation_code=self._operation_code)
         transparent_window.start()
 
         while self.working():

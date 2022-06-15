@@ -1,6 +1,11 @@
+"""
+author: Ariel Gluzman
+date: 2022
+email: ariel.gluzman@gmail.com
+"""
+
 import string
 from threading import Thread
-
 from src.Server.communication import Communication
 from src.Server.input import Input
 from src.Server.logic import Logic

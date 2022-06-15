@@ -1,7 +1,7 @@
-'''
+"""
 author: Ariel Gluzman
 date: May 30th 2022
-'''
+"""
 
 # Extended Window Styles 'https://docs.microsoft.com/en-us/windows/win32/winmsg/extended-window-styles'
 
@@ -16,10 +16,10 @@ TRUE = win32con.TRUE
 FALSE = win32con.FALSE
 
 
-class Window(Process):
+class TransparentWindow(Process):
     def __init__(self, operation_code: Value):
 
-        super(Window, self).__init__()
+        super(TransparentWindow, self).__init__()
         self.operation_code = operation_code
         self.visible = Value('i', FALSE)
         self.changed = Value('i', FALSE)

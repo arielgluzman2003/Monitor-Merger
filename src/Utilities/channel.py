@@ -1,10 +1,9 @@
-# https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue
-
-'''
-Programmer: Ariel Gluzman
+"""
+Author: Ariel Gluzman
 Date of creation: 2.1.2022
+email: ariel.gluzman@gmail.com
+"""
 
-'''''
 import multiprocessing
 from abc import ABC, abstractmethod
 from multiprocessing import Queue
