@@ -2,15 +2,6 @@
 secure-sockets v2.0
 Author: Ariel Gluzman
 Date: January 17th 2022
-In an effort to make Secure-Sockets more native and easily adoptable I decided to
-make a newer version that will drop the use of the separate secureServer() and secureClient()
-and will now offer a single object SecureSocket()
-When I began coding the first version I thought of my code as having a dichotomy between CLIENT and SERVER
-my definitions for CLIENT were that it does not get the 'bind()' method and is the product of accept()
-previously I thought it was a good convention/analogy but I have changed my mind.
-The new version will be a lot similar to the "default" socket library (Python\..\Lib\socket.py) and
-in large will be closer to its concepts.
-previous version should be found at https://github.com/arielgluzman2003/secure-sockets at an early branch
 '''
 import socket
 from typing import Optional
