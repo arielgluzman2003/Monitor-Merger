@@ -15,11 +15,6 @@ from multiprocessing import Value, Process
 import src.Utilities.channel
 import random
 
-TITLE = "Display Merger"
-SIZE = 5  # the smaller size the larger window
-START = "Start"
-STOP = "Stop"
-
 
 def generate_code(letters=string.digits + string.ascii_letters, length=5):
     return ''.join(random.choice(letters) for i in range(length))
