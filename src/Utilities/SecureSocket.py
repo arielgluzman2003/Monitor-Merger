@@ -6,7 +6,6 @@ Date: January 17th 2022
 
 import socket
 from typing import Optional
-
 from Crypto.Util.Padding import pad, unpad
 from Crypto.Random import get_random_bytes as generate_key
 from Crypto.Cipher import AES
@@ -24,7 +23,7 @@ def _construct(copy_socket, aes_object):
 
 class SecureSocket:
 
-    def __init__(self, family=socket.AF_INET, socktype=socket.SOCK_STREAM, blocksize=32):
+    def __init__(self, family=socket.AF_INET, socktype=socket.SOCK_STREAM, blocksize=32, address_reuse=True):
         self._address_family = family
         self._socket_type = socktype
         self._aes = None
@@ -34,10 +33,8 @@ class SecureSocket:
         self._public_key = None
         self._acceptor = -1
         self._socket = socket.socket(family, socktype)
-        self.allow_address_reuse()
-
-    def allow_address_reuse(self):
-        self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if address_reuse:
+            self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
     def bind(self, arguments):
         if int(self._acceptor) == -1:  # Socket orientation not yet defined, used at first call.

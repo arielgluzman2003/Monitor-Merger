@@ -29,15 +29,6 @@ class Server(Thread):
 
     def __init__(self, code: str, operation_code: Value):
         super(Server, self).__init__()
-        operation_code: Value
-        input_queue: DirectedChannel
-        output_queue: DirectedChannel
-        logic_client_handle_channel: UndirectedChannel
-        communication_client_handle_channel: UndirectedChannel
-        logical_process: Process
-        input_process: Process
-        communication_process: Process
-
         self.operation_code = operation_code
         self.code = code
 
