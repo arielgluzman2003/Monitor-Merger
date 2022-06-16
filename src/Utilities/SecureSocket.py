@@ -87,7 +87,7 @@ class SecureSocket:
         try:
             client_socket, addr = self._socket.accept()
         except socket.error as e:
-            raise socket.error('An Error Occurred while trying to receive connection .' + e)
+            raise SecureSocketException('An Error Occurred while trying to receive connection .' + str(e))
         pickled_pubkey = pickle.dumps(self._public_key)  # turning object into byte-array
         client_socket.send(pickled_pubkey)  # sending public key to client
         encrypted_symkey = client_socket.recv(4000)  # receiving an encrypted byte array of the symmetric key

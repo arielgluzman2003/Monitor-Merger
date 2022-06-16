@@ -6,7 +6,7 @@ email: ariel.gluzman@gmail.com
 
 import time
 from multiprocessing import Process, Value
-from src.Utilities.SecureSocket import SecureSocket
+from src.Utilities.SecureSocket import SecureSocket, SecureSocketException
 from src.Server.ClientConnectionHandler import ClientConnectionHandler
 import pickle
 from src.Utilities.constants import OperationCodes
@@ -53,14 +53,23 @@ class Communication(Process):
         print("Socket Closed")
 
     def accept(self, connections_handler: ClientConnectionHandler):
-        client_socket, addr = self._server_socket.accept()
-        client_approval_attempt = pickle.loads(client_socket.recv())
-        self._channel.send(client_approval_attempt)
-        reply = self._recvblocking(attempts=100)
-        client_socket.send(str(reply.value).encode())
-        if reply == ConnectionCodes.CLIENT_APPROVED:
-            orientation, _, _ = client_approval_attempt
-            connections_handler.add_client(client_socket=client_socket, orientation=orientation)
+        timeout = self._server_socket.gettimeout()
+        self._server_socket.settimeout(0.1)
+        found = False
+        try:
+            client_socket, addr = self._server_socket.accept()
+            found = True
+        except SecureSocketException:
+            print("couldn't find client")
+        self._server_socket.settimeout(timeout)
+        if found:
+            client_approval_attempt = pickle.loads(client_socket.recv())
+            self._channel.send(client_approval_attempt)
+            reply = self._recvblocking(attempts=100)
+            client_socket.send(str(reply.value).encode())
+            if reply == ConnectionCodes.CLIENT_APPROVED:
+                orientation, _, _ = client_approval_attempt
+                connections_handler.add_client(client_socket=client_socket, orientation=orientation)
 
     def working(self):
         return self._operation_code.value != OperationCodes.NOT_WORKING

@@ -5,9 +5,11 @@ email: ariel.gluzman@gmail.com
 """
 
 import multiprocessing
+import os
 import pickle
 from tkinter.font import Font
-from tkinter.tix import *
+from tkinter import Tk, Button, Entry, Button, Widget, Label, IntVar, Radiobutton
+from idlelib.tooltip import Hovertip
 from typing import List
 from screeninfo import get_monitors, Monitor
 from src.Client.main import Client
@@ -63,7 +65,7 @@ def connect(orientation: IntVar, info_label: Label, code: str, start_button: But
 
             if ConnectionCodes.CLIENT_DENIED_PASSCODE_WRONG.value == int(connection_code):
                 info_label.config(text='Code Incorrect')
-                startButton['text'] = 'Connect'
+                start_button['text'] = 'Connect'
                 return 'Code Incorrect'
 
             if ConnectionCodes.CLIENT_DENIED_ORIENTATION_UNAVAILABLE.value == int(connection_code):
@@ -77,7 +79,7 @@ def connect(orientation: IntVar, info_label: Label, code: str, start_button: But
                 if orientation_code == Orientation.BOTTOM.value:
                     info_label.config(text='Bottom Monitor Is Already Taken.')
 
-                startButton['text'] = 'Connect'
+                start_button['text'] = 'Connect'
                 return 'Orientation Unavailable'
 
             operation_code.value = OperationCodes.WORKING
@@ -285,11 +287,11 @@ def init_widgets(window: Tk, operation_code: multiprocessing.Value):
     #
     connectButton = Button(window)
     #
-    hostButtonTip = Balloon(window)
+    hostButtonTip = Hovertip(hostButton, 'Make This Computer Main Computer And Let Others Connect')
     #
-    connectButtonTip = Balloon(window)
+    connectButtonTip = Hovertip(connectButton, 'Connect To Server')
 
-    widgets = [welcomeLabel, hostButton, connectButton, hostButtonTip, connectButtonTip]
+    widgets = [welcomeLabel, hostButton, connectButton]
     # endregion
     # region widgets
     welcomeLabel["font"] = Font(family='Times', size=15)
@@ -313,8 +315,6 @@ def init_widgets(window: Tk, operation_code: multiprocessing.Value):
     connectButton["text"] = "Connect"
     connectButton.place(x=130, y=220, width=131, height=30)
 
-    hostButtonTip.bind_widget(hostButton, balloonmsg='Make This Computer Main Computer And Let Others Connect')
-    connectButtonTip.bind_widget(connectButton, balloonmsg='Connect To Server')
     # endregion
     # region functionality
     hostButton["command"] = lambda: [host_widgets(window, operation_code), destroy_all(widgets)]
@@ -335,7 +335,8 @@ def main():
     alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
     window.geometry(alignstr)
     window.resizable(width=False, height=False)
-    window.iconbitmap(os.path.join('\\'.join(os.getcwd().split('\\')[:-1]), r'res\icon.ico'))
+    # window.iconbitmap(os.path.join(os.path.dirname(os.getcwd()), r'res\icon.ico'))
+    #window.iconbitmap(os.path.join(os.getcwd(), r'res\icon.ico'))
 
     init_widgets(window, operation_code)
 
